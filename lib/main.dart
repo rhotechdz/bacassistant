@@ -2,6 +2,8 @@ import 'package:bacassistant/features/BAC/screens/bac_list_page.dart';
 import 'package:bacassistant/features/grade_calculator/screens/grade_calculator.dart';
 import 'package:bacassistant/quiz.dart';
 import 'package:bacassistant/screens/home.dart';
+import 'package:bacassistant/screens/introduction_flow/introduction_flow.dart';
+import 'package:bacassistant/screens/login.dart';
 import 'package:bacassistant/services/google_sign_in/auth_bloc.dart';
 import 'package:bacassistant/services/google_sign_in/auth_event.dart';
 import 'package:bacassistant/services/google_sign_in/auth_state.dart';
@@ -48,31 +50,23 @@ class MyApp extends StatelessWidget {
             '/bac_list': (context) => BacPage(),
             '/quiz': (context) => QuizPage(),
           },
-          home: prefs.getBool('firstRun') == null
-              ? BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    if (state is AuthInitial || state is AuthLoading) {
-                      return Scaffold(
-                          body: Center(child: CircularProgressIndicator()));
-                    } else if (state is Authenticated) {
-                      return HomePage();
-                    } else {
-                      return HomePage();
-                    }
-                  },
-                )
-              : BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    if (state is AuthInitial || state is AuthLoading) {
-                      return Scaffold(
-                          body: Center(child: CircularProgressIndicator()));
-                    } else if (state is Authenticated) {
-                      return HomePage();
-                    } else {
-                      return HomePage();
-                    }
-                  },
-                ));
+          home: BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (state is AuthInitial || state is AuthLoading) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              if (state is Authenticated) {
+                return const HomePage();
+              }
+
+              return prefs.getBool('firstRun') == true
+                  ? const IntroductionFlow()
+                  : const LoginPage();
+            },
+          ));
     });
   }
 }

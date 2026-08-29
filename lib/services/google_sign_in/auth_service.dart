@@ -30,8 +30,19 @@ class AuthService {
       );
 
       return await firebaseAuth.signInWithCredential(credential);
-    } catch (e) {
-      rethrow;
+    } on GoogleSignInException catch (error) {
+      final description = error.description;
+      final details = error.details;
+      throw StateError(
+        'Google Sign-In failed (${error.code})'
+        '${description == null ? '' : ': $description'}'
+        '${details == null ? '' : ' [$details]'}',
+      );
+    } on FirebaseAuthException catch (error) {
+      throw StateError(
+        'Firebase Google authentication failed (${error.code}): '
+        '${error.message ?? 'No further details were provided.'}',
+      );
     }
   }
 

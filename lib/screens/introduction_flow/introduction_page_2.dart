@@ -107,8 +107,16 @@ class _IntroductionPageTwoState extends State<IntroductionPageTwo> {
                         borderRadius: BorderRadius.circular(32),
                       ),
                     ),
-                    onPressed: () {
-                      AuthService().signInWithGoogle();
+                    onPressed: () async {
+                      try {
+                        await AuthService().signInWithGoogle();
+                      } catch (error) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Google login failed: $error')),
+                          );
+                        }
+                      }
                     },
                     label: const Text(
                       "تسجيل الدخول ",

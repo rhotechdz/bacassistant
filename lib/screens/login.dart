@@ -5,17 +5,8 @@ class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   void _onPhoneLogin(BuildContext context) {
-    // TODO: Implement phone login logic
-    print('------------PHONE LOGIN-----------');
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Phone login pressed')),
-    );
-  }
-
-  void _onGoogleLogin(BuildContext context) {
-    // TODO: Implement Google login logic
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Google login pressed')),
     );
   }
 
@@ -34,7 +25,6 @@ class LoginPage extends StatelessWidget {
             children: [
               FilledButton(
                 onPressed: () {
-                  print(AuthService().firebaseAuth.currentUser?.displayName);
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -75,7 +65,17 @@ class LoginPage extends StatelessWidget {
               FilledButton.icon(
                 icon: const Icon(Icons.abc_outlined),
                 label: const Text('Login with Google'),
-                onPressed: () => AuthService().signInWithGoogle(),
+                onPressed: () async {
+                  try {
+                    await AuthService().signInWithGoogle();
+                  } catch (error) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Google login failed: $error')),
+                      );
+                    }
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,

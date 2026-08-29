@@ -1,6 +1,7 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bacassistant/main.dart';
+import 'package:bacassistant/utils/initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -42,8 +43,8 @@ class _CurriculumPageState extends State<CurriculumPage> {
 
   void prepData() {
 
-    if (curriculum!.keys.toList().contains(chosenSubject)) {
-      curriculum![chosenSubject].forEach((value) {
+    if (curriculumMap.keys.toList().contains(chosenSubject)) {
+      curriculumMap[chosenSubject].forEach((value) {
         if (value["الشعب"] is int || value["الشعب"].contains(chosenField)) {
           lessons = value['الدروس'];
         }
@@ -78,7 +79,7 @@ class _CurriculumPageState extends State<CurriculumPage> {
             const SizedBox(height: 30),
             Text(
               "لا توجد مراجع لهذه المادة",
-              style: txtTheme(context).headlineSmall!,
+              style: Theme.of(context).textTheme.headlineSmall!,
             ),
           ]
         ),
@@ -86,7 +87,7 @@ class _CurriculumPageState extends State<CurriculumPage> {
     }
   }
 
-  parseEntry(element, index, path, [key]) {
+  void parseEntry(element, index, path, [key]) {
     if (key != null) keys.add(key);
 
     if (element is Map) {
@@ -99,30 +100,30 @@ class _CurriculumPageState extends State<CurriculumPage> {
     }
   }
 
-  convert(element) {
+  StatefulWidget convert(element) {
     if (element is List) {
       String key = keys.removeAt(0);
       expandable = true;
 
       return ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        backgroundColor: colorScheme(context).primaryContainer,
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0)
         ),
         collapsedShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0)
         ),
-        collapsedBackgroundColor: colorScheme(context).primaryContainer,
+        collapsedBackgroundColor: Theme.of(context).colorScheme.primaryContainer,
         collapsedTextColor: Theme.of(context).primaryColor,
         title: AutoSizeText(
           key,
           overflow: TextOverflow.fade,
           maxFontSize: 18,
           textAlign: key.contains('e') ? TextAlign.start : TextAlign.end,
-          style: txtTheme(context).headlineSmall!.copyWith(
+          style: Theme.of(context).textTheme.headlineSmall!.copyWith(
             fontWeight: FontWeight.bold,
-            color: colorScheme(context).onPrimaryContainer
+            color: Theme.of(context).colorScheme.onPrimaryContainer
           )
         ),
         children: element.map<Widget>((e) => convert(e)).toList(),
@@ -131,7 +132,7 @@ class _CurriculumPageState extends State<CurriculumPage> {
       return Ink(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30.0),
-          color: colorScheme(context).primaryContainer
+          color: Theme.of(context).colorScheme.primaryContainer
         ),
         
         child: InkWell(
@@ -194,7 +195,7 @@ class _CurriculumPageState extends State<CurriculumPage> {
         centerTitle: true,
         title: InkWell(
           child: Text(
-            chosenSubject!,
+            prefs.getString('chosenSubject')!,
             style: const TextStyle(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),

@@ -1,5 +1,3 @@
-
-
 //import 'package:bacassistant/main.dart';
 
 import 'dart:convert';
@@ -50,10 +48,12 @@ class Initializer {
   }
 
   static Future<void> loadFiles() async {
-    rootBundle.loadString('assets/data/historical_events.json')
-      .then((result) => hisgeoMap = json.decode(result));
-    rootBundle.loadString('assets/data/curriculum.json')
-      .then((result) => curriculumMap = json.decode(result));
+    rootBundle
+        .loadString('assets/data/historical_events.json')
+        .then((result) => hisgeoMap = json.decode(result));
+    rootBundle
+        .loadString('assets/data/curriculum.json')
+        .then((result) => curriculumMap = json.decode(result));
   }
 
   static Future<void> run() async {
@@ -75,9 +75,8 @@ class Initializer {
     );
 
     // Initialize Firebase App Check
-    await FirebaseAppCheck.instance.activate(
-      androidProvider: AndroidProvider.debug
-    );
+    await FirebaseAppCheck.instance
+        .activate(androidProvider: AndroidProvider.debug);
 
     // Load ad service
     await MobileAds.instance.initialize();

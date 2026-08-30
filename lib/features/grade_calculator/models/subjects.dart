@@ -2,18 +2,20 @@ import 'package:bacassistant/utils/constants.dart';
 import 'package:bacassistant/utils/initializer.dart';
 
 class Subjects {
-  final String field = prefs.getString('chosenField')!;
-  late Map<String, int> map;
-  late Map<String, int> unified;
-  final Map<String, List> optional = {
-    "اللغة الأمازيغية": [2, true],
-    "التربية البدنية": [1, true]
+  final String field = prefs.getString('chosenField') ?? 'شعبة علوم تجريبية';
+  late final Map<String, int> map;
+  late Map<String, int> unified = {};
+
+  final Map<String, List<dynamic>> optional = {
+    'اللغة الأمازيغية': [2, prefs.getBool('tamazight') ?? true],
+    'التربية البدنية': [1, prefs.getBool('sports') ?? true],
   };
 
   Subjects() {
-    map = Map.of(subjectsMap[field])
-      ..remove("اللغة الأمازيغية")
-      ..remove("التربية البدنية");
+    map = Map<String, int>.from(subjectsMap[field] as Map)
+      ..remove('اللغة الأمازيغية')
+      ..remove('التربية البدنية');
+    unify();
   }
 
   int get length => map.length;
@@ -21,9 +23,25 @@ class Subjects {
   List get keys => map.keys.toList();
   List get values => map.values.toList();
 
-  void update(String key) => optional[key]![1] = !optional[key]![1];
-  void unify() => unified = {
-    ...map,
-    ...{for (var e in optional.entries) if (e.value[1]) e.key: e.value[0]}
-  };
+  void update(String key) {
+    final currentState = optional[key]?[1] as bool? ?? true;
+    final newState = !currentState;
+    optional[key]![1] = newState;
+
+    if (key == 'اللغة الأمازيغية') {
+      prefs.setBool('tamazight', newState);
+    } else if (key == 'التربية البدنية') {
+      prefs.setBool('sports', newState);
+    }
+  }
+
+  void unify() {
+    unified = {
+      ...map,
+      ...{
+        for (final entry in optional.entries)
+          if (entry.value[1] as bool) entry.key: entry.value[0] as int,
+      },
+    };
+  }
 }

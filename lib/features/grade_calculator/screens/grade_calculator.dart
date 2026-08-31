@@ -271,17 +271,6 @@ class _GradeCalculatorPageState extends State<GradeCalculatorPage> {
                   keyboardDismissBehavior:
                       ScrollViewKeyboardDismissBehavior.onDrag,
                   children: [
-                    // Descriptive caption
-                    Center(
-                      child: Text(
-                        'خطوة بخطوة نحو النجاح، كل نقطة تصنع الفارق!',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
                     // Mandatory subjects card
                     Container(
                       decoration: BoxDecoration(

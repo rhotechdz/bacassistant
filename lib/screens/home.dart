@@ -8,6 +8,7 @@ import 'package:bacassistant/screens/introduction_flow/introduction_flow.dart';
 import 'package:bacassistant/screens/introduction_flow/press_animation_button.dart';
 import 'package:bacassistant/services/google_sign_in/auth_service.dart';
 import 'package:bacassistant/themes/bloc/theme.dart';
+import 'package:bacassistant/utils/constants.dart';
 import 'package:bacassistant/utils/initializer.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -65,6 +66,33 @@ class _HomePageState extends State<HomePage> {
     setState(() {}); */
     super.didChangeDependencies();
   } */
+
+  void _updateChosenField(String newField) {
+    if (newField.isEmpty) return;
+
+    final availableFields = fieldList.isEmpty ? fieldDict.keys.toList() : fieldList;
+    if (!availableFields.contains(newField)) return;
+
+    setState(() {
+      prefs.setString('chosenField', newField);
+      prefs.setString('chosenSubject', subjectsMap[newField].keys.elementAt(0));
+      chosenField = newField;
+      chosenSubject = subjectsMap[newField].keys.elementAt(0);
+    });
+  }
+
+  void _cycleChosenField() {
+    final availableFields = fieldList.isEmpty ? fieldDict.keys.toList() : fieldList;
+    if (availableFields.isEmpty) return;
+
+    final currentField = prefs.getString('chosenField') ?? availableFields.first;
+    final currentIndex = availableFields.indexOf(currentField);
+    final nextIndex = currentIndex == -1
+        ? 0
+        : (currentIndex + 1) % availableFields.length;
+
+    _updateChosenField(availableFields[nextIndex]);
+  }
 
   @override
   void dispose() {
@@ -130,7 +158,7 @@ class _HomePageState extends State<HomePage> {
         FilledButton(
           onPressed: () {
             developer.Service.getInfo().then((info) {
-              print(info.serverUri); // prints the current VM service URI
+              debugPrint(info.serverUri.toString());
             });
           },
           child: const Text('print devtools url'),
@@ -140,6 +168,12 @@ class _HomePageState extends State<HomePage> {
             prefs.clear();
           },
           child: const Text('Clear prefs'),
+        ),
+        FilledButton(
+          onPressed: _cycleChosenField,
+          child: Text(
+            'Debug: Change chosenField (${prefs.getString('chosenField') ?? 'not set'})',
+          ),
         ),
         FilledButton(
           onPressed: () {

@@ -16,6 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Initializer.run();
+  fieldList = fieldDict.keys.toList();
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider(create: (_) => ThemeBloc()),
@@ -107,11 +108,13 @@ Widget subjectsPicker(BuildContext context, Function setState,
 }
 
 Widget fieldPicker(BuildContext context, Function setState) {
+  final availableFields = fieldList.isEmpty ? fieldDict.keys.toList() : fieldList;
+
   return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(
-          fieldList.length,
+          availableFields.length,
           (index) => InkWell(
                 borderRadius: BorderRadius.circular(20.0),
                 child: Container(
@@ -121,7 +124,7 @@ Widget fieldPicker(BuildContext context, Function setState) {
                   decoration:
                       BoxDecoration(borderRadius: BorderRadius.circular(20.0)),
                   child: Text(
-                    ' ${fieldList[index]} ',
+                    ' ${availableFields[index]} ',
                     textAlign: TextAlign.center,
                     style: Theme.of(context)
                         .textTheme
@@ -130,13 +133,13 @@ Widget fieldPicker(BuildContext context, Function setState) {
                   ),
                 ),
                 onTap: () {
-                  String field = fieldList[index];
+                  String field = availableFields[index];
                   Navigator.of(context).pop();
                   setState(() {
                     prefs.setString('chosenField', field);
                     prefs.setString(
                         'chosenSubject', subjectsMap[field].keys.elementAt(0));
-                    chosenField = fieldList[index];
+                    chosenField = field;
                     chosenSubject = subjectsMap[field].keys.elementAt(0);
                   });
                 },

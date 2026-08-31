@@ -54,4 +54,4 @@ app.*.map.json
 # Machine-specific local config
 /android/local.properties
 
-./temp
+.temp/

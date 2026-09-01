@@ -1,5 +1,3 @@
-
-
 import 'package:bacassistant/features/BAC/bloc/bac_bloc.dart';
 import 'package:bacassistant/features/BAC/bloc/bac_doc_event.dart';
 import 'package:bacassistant/features/BAC/bloc/bac_doc_state.dart';
@@ -23,7 +21,8 @@ class BacDocViewer extends StatelessWidget {
   }) {
     _currentDocument = BacDocument(
       year: year,
-      subject: subject ?? prefs.getString('chosenSubject') ?? 'علوم الطبيعة والحياة',
+      subject:
+          subject ?? prefs.getString('chosenSubject') ?? 'علوم الطبيعة والحياة',
       field: field ?? prefs.getString('chosenField') ?? 'شعبة علوم تجريبية',
     );
   }
@@ -64,7 +63,8 @@ class BacDocViewer extends StatelessWidget {
 
             if (state is BacDocError) {
               return Center(
-                child: Text('Error: ${state.message}\nDocument Path: ${state.documentPath}'),
+                child: Text(
+                    'Error: ${state.message}\nDocument Path: ${state.documentPath}'),
               );
             }
 
@@ -114,7 +114,8 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedPath = _showCorrection ? widget.correctionPath : widget.documentPath;
+    final selectedPath =
+        _showCorrection ? widget.correctionPath : widget.documentPath;
     final subject = prefs.getString('chosenSubject') ?? 'علوم الطبيعة والحياة';
 
     final appBar = _fullscreen
@@ -133,9 +134,9 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
               'بكالوريا ${widget.year} - $subject',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF1E1924),
-              ),
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1E1924),
+                  ),
             ),
             actions: [
               IconButton(
@@ -158,7 +159,9 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                     child: PdfViewer.file(
                       selectedPath,
                       params: const PdfViewerParams(
-                        sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
+                        scrollPhysics: BouncingScrollPhysics(),
+                        sizeDelegateProvider:
+                            PdfViewerSizeDelegateProviderLegacy(
                           minScale: 0.75,
                           maxScale: 2.5,
                         ),
@@ -195,7 +198,8 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                           children: [
                             Expanded(
                               child: InkWell(
-                                onTap: () => setState(() => _showCorrection = false),
+                                onTap: () =>
+                                    setState(() => _showCorrection = false),
                                 borderRadius: BorderRadius.circular(10),
                                 child: Container(
                                   decoration: BoxDecoration(
@@ -219,7 +223,8 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                             ),
                             Expanded(
                               child: InkWell(
-                                onTap: () => setState(() => _showCorrection = true),
+                                onTap: () =>
+                                    setState(() => _showCorrection = true),
                                 borderRadius: BorderRadius.circular(10),
                                 child: Container(
                                   decoration: BoxDecoration(
@@ -254,13 +259,15 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: const Color(0xFFEFE5F4),
-                              border: Border.all(color: const Color(0xFFDCCBE9)),
+                              border:
+                                  Border.all(color: const Color(0xFFDCCBE9)),
                               borderRadius: BorderRadius.circular(18),
                             ),
                             child: SizedBox.expand(
                               child: PdfViewer.file(
                                 selectedPath,
                                 params: const PdfViewerParams(
+                                  scrollPhysics: BouncingScrollPhysics(),
                                   sizeDelegateProvider:
                                       PdfViewerSizeDelegateProviderLegacy(
                                     minScale: 0.75,
@@ -287,7 +294,8 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -312,7 +320,8 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,

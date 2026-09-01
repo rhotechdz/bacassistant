@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pdfrx/pdfrx.dart';
-import 'package:share_plus/share_plus.dart';
 
 class BacDocViewer extends StatelessWidget {
   final int year;
@@ -95,6 +94,7 @@ class BacOverviewPage extends StatefulWidget {
 
 class _BacOverviewPageState extends State<BacOverviewPage> {
   bool _fullscreen = false;
+  bool _showCorrection = false;
 
   @override
   void dispose() {
@@ -112,153 +112,224 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
 
-  Future<void> _sharePdf(String path) async {
-    await SharePlus.instance.share(
-      ShareParams(files: [XFile(path)]),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final selectedPath = _showCorrection ? widget.correctionPath : widget.documentPath;
+    final subject = prefs.getString('chosenSubject') ?? 'علوم الطبيعة والحياة';
+
     final appBar = _fullscreen
         ? null
         : AppBar(
-            title: Text('Bac ${widget.year}'),
+            automaticallyImplyLeading: false,
+            backgroundColor: const Color(0xFFF7EEFF),
+            elevation: 0,
+            titleSpacing: 0,
+            leading: IconButton(
+              onPressed: () => Navigator.of(context).maybePop(),
+              icon: const Icon(Icons.arrow_back_rounded, size: 28),
+              color: const Color(0xFF1E1924),
+            ),
+            title: Text(
+              'بكالوريا ${widget.year} - $subject',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1E1924),
+              ),
+            ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.print),
-                onPressed: () => _sharePdf(widget.documentPath),
-                tooltip: 'Print document',
-              ),
-              IconButton(
-                icon: const Icon(Icons.print_outlined),
-                onPressed: () => _sharePdf(widget.correctionPath),
-                tooltip: 'Print correction',
-              ),
-              IconButton(
-                icon: Icon(_fullscreen ? Icons.fullscreen_exit : Icons.fullscreen),
-                onPressed: () {
-                  if (_fullscreen) {
-                    _exitFullscreen();
-                  } else {
-                    _enterFullscreen();
-                  }
-                },
+                onPressed: () {},
+                icon: const Icon(Icons.more_vert_rounded, size: 24),
+                color: const Color(0xFF1E1924),
               ),
             ],
           );
 
-    return Scaffold(
-      appBar: appBar,
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            if (!_fullscreen)
-              Row(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFFFF7FF),
+        appBar: appBar,
+        body: _fullscreen
+            ? Stack(
                 children: [
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: () => _sharePdf(widget.documentPath),
-                      icon: const Icon(Icons.print),
-                      label: const Text('Print document'),
+                  Positioned.fill(
+                    child: PdfViewer.file(
+                      selectedPath,
+                      params: const PdfViewerParams(
+                        sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
+                          minScale: 0.75,
+                          maxScale: 2.5,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: () => _sharePdf(widget.correctionPath),
-                      icon: const Icon(Icons.picture_as_pdf_outlined),
-                      label: const Text('Print correction'),
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: IconButton(
+                      onPressed: _exitFullscreen,
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white.withValues(alpha: 0.9),
+                      ),
+                      icon: const Icon(Icons.fullscreen_exit_rounded),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  IconButton.filled(
-                    onPressed: () {
-                      if (_fullscreen) {
-                        _exitFullscreen();
-                      } else {
-                        _enterFullscreen();
-                      }
-                    },
-                    icon: Icon(_fullscreen ? Icons.fullscreen_exit : Icons.fullscreen),
                   ),
                 ],
-              ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isWide = constraints.maxWidth > 720;
-                  final children = [
-                    Expanded(
-                      child: _PdfCard(
-                        title: 'Document',
-                        path: widget.documentPath,
+              )
+            : SafeArea(
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      child: Container(
+                        height: 52,
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0E6F4),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () => setState(() => _showCorrection = false),
+                                borderRadius: BorderRadius.circular(10),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: !_showCorrection
+                                        ? const Color(0xFF8B2CF5)
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'الموضوع',
+                                    style: TextStyle(
+                                      color: !_showCorrection
+                                          ? Colors.white
+                                          : const Color(0xFF4C4355),
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () => setState(() => _showCorrection = true),
+                                borderRadius: BorderRadius.circular(10),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: _showCorrection
+                                        ? const Color(0xFF8B2CF5)
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'الحل',
+                                    style: TextStyle(
+                                      color: _showCorrection
+                                          ? Colors.white
+                                          : const Color(0xFF4C4355),
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 12, height: 12),
                     Expanded(
-                      child: _PdfCard(
-                        title: 'Correction',
-                        path: widget.correctionPath,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEFE5F4),
+                              border: Border.all(color: const Color(0xFFDCCBE9)),
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: SizedBox.expand(
+                              child: PdfViewer.file(
+                                selectedPath,
+                                params: const PdfViewerParams(
+                                  sizeDelegateProvider:
+                                      PdfViewerSizeDelegateProviderLegacy(
+                                    minScale: 0.75,
+                                    maxScale: 2.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ];
-
-                  return isWide
-                      ? Row(children: children)
-                      : Column(children: children);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PdfCard extends StatelessWidget {
-  final String title;
-  final String path;
-
-  const _PdfCard({
-    required this.title,
-    required this.path,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            width: double.infinity,
-            color: Theme.of(context).colorScheme.primaryContainer,
-            child: Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(
-            child: PdfViewer.file(
-              path,
-              params: const PdfViewerParams(
-                sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
-                  minScale: 0.75,
-                  maxScale: 2.5,
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF8B2CF5),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(Icons.print_rounded),
+                                  SizedBox(width: 8),
+                                  Text('طباعة'),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: _enterFullscreen,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFF8B2CF5),
+                                side: const BorderSide(
+                                  color: Color(0xFF8B2CF5),
+                                  width: 1.5,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(Icons.open_in_new_rounded),
+                                  SizedBox(width: 8),
+                                  Text('فتح'),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ),
-        ],
       ),
     );
   }

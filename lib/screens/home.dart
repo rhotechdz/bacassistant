@@ -1,5 +1,5 @@
+import 'dart:convert';
 import 'dart:developer' as developer;
-import 'dart:io';
 
 import 'package:animations/animations.dart';
 import 'package:bacassistant/main.dart';
@@ -35,14 +35,28 @@ class _HomePageState extends State<HomePage> {
   Map intervals = {};
   BannerAd? bannerAd;
 
-  Future<String> _loadTimestamp() async {
-    await Dio().download(
-      "https://raw.githubusercontent.com/bacdz02/a5b1f45402b9/main/timestamp.txt",
-      '$appStorage/timestamp.txt',
+  Future<Map<String, dynamic>> _loadTimestamp() async {
+    final cached = prefs.getString('cached_exam_timestamp');
+    if (cached != null && cached.isNotEmpty) {
+      final decoded = jsonDecode(cached);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+      if (decoded is Map) {
+        return decoded.cast<String, dynamic>();
+      }
+    }
+
+    final response = await Dio().get(
+      'https://bac-assistant.idrismore18.workers.dev/dev/timestamp',
     );
-    File file = File('$appStorage/timestamp.txt');
-    String content = file.readAsStringSync();
-    return content;
+    final data = response.data;
+    final normalized = data is Map<String, dynamic>
+        ? data
+        : (data as Map).cast<String, dynamic>();
+
+    prefs.setString('cached_exam_timestamp', jsonEncode(normalized));
+    return normalized;
   }
 
   /* @override
@@ -211,19 +225,18 @@ class _HomePageState extends State<HomePage> {
           ),
           child: FutureBuilder<Object>(
               future: _loadTimestamp().then((value) {
-                timestamp = int.parse(value);
-                int now = DateTime.timestamp().millisecondsSinceEpoch ~/ 1000;
-                int diff = timestamp! - now;
+                final examTimestamp = value['examTimestamp'] as int? ?? 0;
+                final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+                final diff = (examTimestamp - now).clamp(0, 2147483647);
 
-                int remainder = 0;
-                intervals['أشهر'] = (diff ~/ 2629743); // weeks
-                remainder = diff.remainder(2629743);
-                intervals['يوم'] = (remainder ~/ 86400); // days
+                int remainder = diff;
+                intervals['أشهر'] = (remainder ~/ 2629743);
+                remainder = remainder.remainder(2629743);
+                intervals['يوم'] = (remainder ~/ 86400);
                 remainder = remainder.remainder(86400);
-                intervals['ساعة'] = (remainder ~/ 3600); // hours
+                intervals['ساعة'] = (remainder ~/ 3600);
                 remainder = remainder.remainder(3600);
-                intervals['دقيقة'] = (remainder ~/ 60); // minutes
-                remainder = remainder.remainder(60);
+                intervals['دقيقة'] = (remainder ~/ 60);
 
                 return 0;
               }),

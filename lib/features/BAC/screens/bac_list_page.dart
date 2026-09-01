@@ -19,170 +19,126 @@ class _BacPageState extends State<BacPage> {
 
   @override
   Widget build(BuildContext context) {
-    final String selectedField =
-        prefs.getString('chosenField') ?? fieldDict.keys.first;
-
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFFFF7FF),
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          centerTitle: true,
-          backgroundColor: const Color(0xFFF7EEFF),
-          elevation: 0,
-          title: Text(
-            'مواضيع البكالوريا',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1E1924),
-                ),
-          ),
-          leading: IconButton(
-            onPressed: () => Navigator.of(context).maybePop(),
-            icon: const Icon(Icons.chevron_left_rounded, size: 28),
-            color: const Color(0xFF1E1924),
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('اختر الشعبة'),
-                    content: SizedBox(
-                      width: double.maxFinite,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: fieldDict.keys.length,
-                        itemBuilder: (context, index) {
-                          final field = fieldDict.keys.toList()[index];
-                          final isSelected = field == selectedField;
-                          return ListTile(
-                            title: Text(field),
-                            trailing:
-                                isSelected ? const Icon(Icons.check) : null,
-                            onTap: () {
-                              prefs.setString('chosenField', field);
-                              final firstSubject =
-                                  (subjectsMap[field] as Map).keys.first;
-                              prefs.setString('chosenSubject', firstSubject);
-                              setState(() {});
-                              Navigator.of(context).pop();
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.arrow_forward_rounded, size: 28),
-              color: const Color(0xFF1E1924),
-            ),
-          ],
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFF7FF),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        backgroundColor: const Color(0xFFF7EEFF),
+        elevation: 0,
+        title: Text(
+          'مواضيع البكالوريا',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1E1924),
+              ),
         ),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'اختر دورة البكالوريا للإطلاع على المواضيع والحلول المفصلة لشعبة $selectedField.',
-                  textAlign: TextAlign.right,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: const Color(0xFF4C4355),
-                        height: 1.6,
-                      ),
-                ),
-                const SizedBox(height: 18),
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: years.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final year = years[index];
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).maybePop(),
+          icon: const Icon(Icons.arrow_forward_rounded, size: 28),
+          color: const Color(0xFF1E1924),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'اختر دورة البكالوريا للإطلاع على المواضيع والحلول المفصلة.',
+                textAlign: TextAlign.right,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: const Color(0xFF4C4355),
+                      height: 1.6,
+                    ),
+              ),
+              const SizedBox(height: 18),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: years.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final year = years[index];
 
-                      return InkWell(
-                        borderRadius: BorderRadius.circular(18),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  BacSubjectSelectionPage(year: year),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          height: 90,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 18, vertical: 14),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEFE5F4),
-                            borderRadius: BorderRadius.circular(18),
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(18),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                BacSubjectSelectionPage(year: year),
                           ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 52,
-                                height: 52,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFF8B2CF5),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.menu_book_rounded,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'بكالوريا $year',
-                                      textAlign: TextAlign.right,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w700,
-                                            color: const Color(0xFF1E1924),
-                                          ),
-                                    ),
-                                    Text(
-                                      selectedField,
-                                      textAlign: TextAlign.right,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge
-                                          ?.copyWith(
-                                            color: const Color(0xFF4C4355),
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              const Icon(
-                                Icons.chevron_right_rounded,
-                                size: 28,
-                                color: Color(0xFF1E1924),
-                              ),
-                            ],
-                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 90,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 18, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEFE5F4),
+                          borderRadius: BorderRadius.circular(18),
                         ),
-                      );
-                    },
-                  ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.chevron_left_rounded,
+                              size: 28,
+                              color: Color(0xFF1E1924),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'بكالوريا $year',
+                                    textAlign: TextAlign.right,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          color: const Color(0xFF1E1924),
+                                        ),
+                                  ),
+                                  Text(
+                                    'شعبة علوم تجريبية',
+                                    textAlign: TextAlign.right,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(
+                                          color: const Color(0xFF4C4355),
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF8B2CF5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.menu_book_rounded,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -215,66 +171,146 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFFF7FF),
       appBar: AppBar(
-        title: const Text('Choose subject'),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: DropdownButtonFormField<String>(
-              initialValue: field,
-              decoration: const InputDecoration(labelText: 'Field'),
-              items: fieldDict.keys
-                  .map(
-                    (value) => DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (value) {
-                if (value == null) return;
-                setState(() {
-                  field = value;
-                  prefs.setString('chosenField', value);
-                  final firstSubject = (subjectsMap[value] as Map).keys.first;
-                  prefs.setString('chosenSubject', firstSubject);
-                });
-              },
+        automaticallyImplyLeading: false,
+        backgroundColor: const Color(0xFFF7EEFF),
+        elevation: 0,
+        centerTitle: false,
+        titleSpacing: 0,
+        title: Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Text(
+              'اختر المادة',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1E1924),
+                  ),
             ),
           ),
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: subjects.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 8),
-              itemBuilder: (context, index) {
-                final subject = subjects[index];
-                return Card(
-                  child: ListTile(
-                    title: Text(subject),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      prefs.setString('chosenSubject', subject);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BacDocViewer(
-                            year: widget.year,
-                            subject: subject,
-                            field: field,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.of(context).maybePop(),
+            icon: const Icon(Icons.arrow_forward_rounded, size: 28),
+            color: const Color(0xFF1E1924),
           ),
         ],
       ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'اختر المادة للاطلاع على المواضيع والحلول',
+                  textAlign: TextAlign.right,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: const Color(0xFF4C4355),
+                        height: 1.6,
+                      ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: subjects.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final subject = subjects[index];
+                    final icon = _subjectIcon(subject);
+
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(18),
+                      onTap: () {
+                        prefs.setString('chosenSubject', subject);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BacDocViewer(
+                              year: widget.year,
+                              subject: subject,
+                              field: field,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 84,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEFE5F4),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 8),
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF8B2CF5),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(14)),
+                              ),
+                              child: Icon(icon, color: Colors.white, size: 28),
+                            ),
+                            const Spacer(),
+                            Expanded(
+                              child: Text(
+                                subject,
+                                textAlign: TextAlign.right,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: const Color(0xFF1E1924),
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
+  }
+
+  IconData _subjectIcon(String subject) {
+    final normalized = subject.trim();
+    if (normalized.contains('علوم الطبيعة') || normalized.contains('حياة')) {
+      return Icons.science_rounded;
+    }
+    if (normalized.contains('رياضيات') || normalized.contains('رياضيات')) {
+      return Icons.calculate_rounded;
+    }
+    if (normalized.contains('فيزي') || normalized.contains('فيزياء')) {
+      return Icons.science_rounded;
+    }
+    if (normalized.contains('فلسفة') || normalized.contains('آداب')) {
+      return Icons.menu_book_rounded;
+    }
+    if (normalized.contains('لغة') || normalized.contains('أجنبية')) {
+      return Icons.language_rounded;
+    }
+    if (normalized.contains('تسيير') || normalized.contains('اقتصاد')) {
+      return Icons.trending_up_rounded;
+    }
+    return Icons.book_rounded;
   }
 }

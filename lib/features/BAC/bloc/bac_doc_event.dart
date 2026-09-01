@@ -10,14 +10,15 @@ class DownloadCorrection extends BacDocEvent {}
 
 class SwitchDocument extends BacDocEvent {
   final String documentPath;
-  
+
   SwitchDocument(this.documentPath);
 }
 
 class Ready extends BacDocEvent {
   final String documentPath;
+  final String correctionPath;
 
-  Ready(this.documentPath);
+  Ready(this.documentPath, this.correctionPath);
 }
 
 class Error extends BacDocEvent {

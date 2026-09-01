@@ -1,92 +1,56 @@
 
 
-import 'dart:io';
-
-import 'package:bacassistant/features/BAC/models/bac_document.dart';
 import 'package:bacassistant/features/BAC/bloc/bac_doc_event.dart';
 import 'package:bacassistant/features/BAC/bloc/bac_doc_state.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:bacassistant/features/BAC/models/bac_document.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 
 class BacBloc extends Bloc<BacDocEvent, BacDocState> {
   final BacDocument doc;
 
   BacBloc(this.doc) : super(BacDocInitial()) {
-
-    on<Initializing>((event, emit) {
+    on<Initializing>((event, emit) async {
       emit(BacDocInitial());
       add(DownloadSubject());
     });
 
     on<DownloadSubject>((event, emit) async {
-      emit(BacDocLoading(0, "Downloading Subject..."));
-      if (doc.exists(doc.path)) {
-        emit(BacDocReady(doc.path));
-      } else {
-        try {
-          final ref = FirebaseStorage.instance.ref()
-            .child("BAC")
-            .child(doc.year.toString())
-            .child(doc.filename);
-
-          final file = File(doc.path);
-          DownloadTask downloadTask = ref.writeToFile(file);
-
-          downloadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-            final progress = snapshot.bytesTransferred / snapshot.totalBytes;
-            debugPrint("Download progress: ${(progress * 100).toStringAsFixed(2)}%");
-          }, onError: (e) {
-            debugPrint("Error downloading file: $e");
-            add(Error("Error downloading file: $e", doc.path));
-          }, onDone: () {
-            add(DownloadCorrection());
-          });
-        } catch (e) {
-          debugPrint("Error downloading file: $e");
+      emit(BacDocLoading(0.1, 'Downloading subject...'));
+      try {
+        await doc.downloadDocument(correction: false);
+        if (doc.exists(doc.path)) {
+          add(DownloadCorrection());
+        } else {
+          add(Error('Document could not be downloaded.', doc.path));
         }
+      } catch (e) {
+        debugPrint('Error downloading document: $e');
+        add(Error('Error downloading document: $e', doc.path));
       }
     });
 
     on<DownloadCorrection>((event, emit) async {
-      emit(BacDocLoading(0, "Downloading Correction..."));
-      if (doc.exists(doc.correctionPath)) {
-        debugPrint("Correction already exists at ${doc.correctionFilename}");
-        emit(BacDocReady(doc.correctionPath));
-      } else {
-        debugPrint("Correction does not exist, starting download...");
-        try {
-          final ref = FirebaseStorage.instance.ref()
-            .child("BAC")
-            .child(doc.year.toString())
-            .child(doc.correctionFilename);
-
-          final file = File(doc.correctionPath);
-          DownloadTask downloadTask = ref.writeToFile(file);
-
-          downloadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-            final progress = snapshot.bytesTransferred / snapshot.totalBytes;
-            debugPrint("Download progress: ${(progress * 100).toStringAsFixed(2)}%");
-          }, onError: (e) {
-            debugPrint("Error downloading file: $e");
-            add(Error("Error downloading file: $e", doc.correctionPath));
-          }, onDone: () {
-            add(Ready(doc.correctionPath));
-          });
-        } catch (e) {
-          debugPrint("Error downloading file: $e");
+      emit(BacDocLoading(0.7, 'Downloading correction...'));
+      try {
+        await doc.downloadDocument(correction: true);
+        if (doc.exists(doc.correctionPath)) {
+          add(Ready(doc.path, doc.correctionPath));
+        } else {
+          add(Error('Correction could not be downloaded.', doc.correctionPath));
         }
+      } catch (e) {
+        debugPrint('Error downloading correction: $e');
+        add(Error('Error downloading correction: $e', doc.correctionPath));
       }
     });
 
     on<SwitchDocument>((event, emit) {
-      
-
+      emit(BacDocReady(event.documentPath, doc.correctionPath));
     });
 
     on<Ready>((event, emit) {
-      emit(BacDocReady(event.documentPath));
+      emit(BacDocReady(event.documentPath, event.correctionPath));
     });
 
     on<Error>((event, emit) {

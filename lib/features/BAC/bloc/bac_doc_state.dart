@@ -15,8 +15,9 @@ class BacDocLoading extends BacDocState {
 
 class BacDocReady extends BacDocState {
   final String documentPath;
+  final String correctionPath;
 
-  BacDocReady(this.documentPath);
+  BacDocReady(this.documentPath, this.correctionPath);
 }
 
 class BacDocError extends BacDocState {

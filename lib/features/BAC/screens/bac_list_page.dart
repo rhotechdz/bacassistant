@@ -1,4 +1,5 @@
 import 'package:bacassistant/features/BAC/screens/bac_doc_page.dart';
+import 'package:bacassistant/features/grade_calculator/screens/grade_calculator.dart';
 import 'package:bacassistant/utils/constants.dart';
 import 'package:bacassistant/utils/initializer.dart';
 import 'package:flutter/material.dart';
@@ -251,18 +252,6 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
                         ),
                         child: Row(
                           children: [
-                            const SizedBox(width: 8),
-                            Container(
-                              width: 52,
-                              height: 52,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF8B2CF5),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(14)),
-                              ),
-                              child: Icon(icon, color: Colors.white, size: 28),
-                            ),
-                            const Spacer(),
                             Expanded(
                               child: Text(
                                 subject,
@@ -276,6 +265,17 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
                                       color: const Color(0xFF1E1924),
                                     ),
                               ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF8B2CF5),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(14)),
+                              ),
+                              child: Icon(icon, color: Colors.white, size: 28),
                             ),
                           ],
                         ),
@@ -293,24 +293,6 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
 
   IconData _subjectIcon(String subject) {
     final normalized = subject.trim();
-    if (normalized.contains('علوم الطبيعة') || normalized.contains('حياة')) {
-      return Icons.science_rounded;
-    }
-    if (normalized.contains('رياضيات') || normalized.contains('رياضيات')) {
-      return Icons.calculate_rounded;
-    }
-    if (normalized.contains('فيزي') || normalized.contains('فيزياء')) {
-      return Icons.science_rounded;
-    }
-    if (normalized.contains('فلسفة') || normalized.contains('آداب')) {
-      return Icons.menu_book_rounded;
-    }
-    if (normalized.contains('لغة') || normalized.contains('أجنبية')) {
-      return Icons.language_rounded;
-    }
-    if (normalized.contains('تسيير') || normalized.contains('اقتصاد')) {
-      return Icons.trending_up_rounded;
-    }
-    return Icons.book_rounded;
+    return subjectIcons[normalized] ?? Icons.school_outlined;
   }
 }

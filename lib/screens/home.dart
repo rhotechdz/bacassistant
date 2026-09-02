@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:bacassistant/main.dart';
 import 'package:bacassistant/routes.dart';
-import 'package:bacassistant/screens/introduction_flow/press_animation_button.dart';
 import 'package:bacassistant/themes/bloc/theme.dart';
 import 'package:bacassistant/utils/initializer.dart';
 import 'package:dio/dio.dart';
@@ -202,11 +201,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    double borderRadius = 48;
     return Scaffold(
-      //backgroundColor: const Color(0xFFF0EFFF),
       appBar: AppBar(
-        //backgroundColor: const Color(0xFFF0EFFF),
         primary: true,
         leading: IconButton(
           icon: const Icon(Icons.settings_outlined),
@@ -224,177 +220,184 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: ListView(children: [
-        Container(
-          margin: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            color: context.colors.primaryContainer,
-          ),
-          child: FutureBuilder<Object>(
-              future: _loadTimestamp().then((value) {
-                final examTimestamp = value['examTimestamp'] as int? ?? 0;
-                final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-                final diff = (examTimestamp - now).clamp(0, 2147483647);
-
-                int remainder = diff;
-                intervals['أشهر'] = (remainder ~/ 2629743);
-                remainder = remainder.remainder(2629743);
-                intervals['يوم'] = (remainder ~/ 86400);
-                remainder = remainder.remainder(86400);
-                intervals['ساعة'] = (remainder ~/ 3600);
-                remainder = remainder.remainder(3600);
-                intervals['دقيقة'] = (remainder ~/ 60);
-
-                return 0;
-              }),
-              builder: (context, snapshot) {
-                Widget buildWidget = Container(
-                  height: 250,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 30.0, vertical: 25),
-                  child: const Center(child: CircularProgressIndicator()),
-                );
-                if (snapshot.connectionState == ConnectionState.done) {
-                  buildWidget = Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30.0, vertical: 25),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text('تبقى لامتحان البكالوريا',
-                            textDirection: TextDirection.rtl,
-                            textAlign: TextAlign.start,
-                            style: context.textTheme.displaySmall!.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: context.colors.onPrimaryContainer)),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 22),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: List.generate(
-                                  intervals.keys.length,
-                                  (index) => Column(
-                                        children: [
-                                          Container(
-                                            width: 50,
-                                            height: 50,
-                                            alignment: Alignment.center,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(14),
-                                              //color: context.colors.onPrimary.withOpacity(0.4)
-                                            ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 8.0),
-                                              child: Text(
-                                                '${intervals.values.elementAt(index)}',
-                                                style: context
-                                                    .textTheme.headlineMedium!
-                                                    .copyWith(
-                                                        //color: context.colors.onPrimaryContainer.withOpacity(0.9),
-                                                        fontWeight:
-                                                            FontWeight.w600),
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 10),
-                                            child: Text(
-                                              intervals.keys.elementAt(index),
-                                              style: TextStyle(
-                                                  color: context
-                                                      .colors.onPrimaryContainer
-                                                      .withValues(alpha: 0.8)),
-                                            ),
-                                          )
-                                        ],
-                                      ))),
-                        )
-                      ],
-                    ),
-                  );
-                }
-
-                return buildWidget;
-              }),
-        ),
-        const SizedBox(height: 20),
-        ...pages.map((element) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Container(
-              //padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              height: 80,
+      body: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          children: [
+            Container(
+              margin: const EdgeInsets.only(bottom: 24),
               decoration: BoxDecoration(
-                color: context.colors.primaryContainer,
-                boxShadow: [
-                  BoxShadow(
-                      blurRadius: 1.5,
-                      spreadRadius: 0.5,
-                      offset: const Offset(0, 2),
-                      color: context.colors.outline.withAlpha(100))
-                ],
-                borderRadius: BorderRadius.circular(borderRadius),
-              ),
-              child: PressAnimationButton(
-                //borderRadius: BorderRadius.circular(borderRadius),
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(borderRadius)),
-                ),
-                label: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Expanded(
-                        child: Container(
-                            padding: const EdgeInsets.only(left: 25),
-                            alignment: Alignment.centerLeft,
-                            child: const Icon(
-                              Icons.chevron_left_rounded,
-                              size: 30,
-                            ))),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      child: Text(element["title"],
-                          //maxFontSize: 20,
-                          textAlign: TextAlign.end,
-                          style: TextStyle(
-                            fontSize: 23,
-                            fontWeight: FontWeight.bold,
-                            color: context.colors.onPrimaryContainer,
-                          )),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: Container(
-                        padding: const EdgeInsets.all(15),
-                        decoration: const BoxDecoration(
-                            color: Color(0xFFF0EFFF), shape: BoxShape.circle),
-                        child: Image.asset(
-                          'assets/images/${element["icon"]}',
-                          width: 30,
-                          height: 30,
-                          color: const Color(0xFF7789F0),
-                        ),
-                      ),
-                    ),
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    context.colors.primary,
+                    context.colors.primaryContainer,
                   ],
                 ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    drillDown(element["route"] as Widget),
-                  );
-                },
+                boxShadow: [
+                  BoxShadow(
+                    color: context.colors.primary.withValues(alpha: 0.22),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: FutureBuilder<Object>(
+                  future: _loadTimestamp().then((value) {
+                    final examTimestamp = value['examTimestamp'] as int? ?? 0;
+                    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+                    final diff = (examTimestamp - now).clamp(0, 2147483647);
+
+                    int remainder = diff;
+                    intervals['أشهر'] = (remainder ~/ 2629743);
+                    remainder = remainder.remainder(2629743);
+                    intervals['يوم'] = (remainder ~/ 86400);
+                    remainder = remainder.remainder(86400);
+                    intervals['ساعة'] = (remainder ~/ 3600);
+                    remainder = remainder.remainder(3600);
+                    intervals['دقيقة'] = (remainder ~/ 60);
+
+                    return 0;
+                  }),
+                  builder: (context, snapshot) {
+                    Widget buildWidget = Container(
+                      height: 238,
+                      padding: const EdgeInsets.all(24),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: context.colors.onPrimary,
+                        ),
+                      ),
+                    );
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      buildWidget = Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              textDirection: TextDirection.rtl,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(9),
+                                  decoration: BoxDecoration(
+                                    color: context.colors.onPrimary
+                                        .withValues(alpha: 0.16),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.event_available_rounded,
+                                    color: context.colors.onPrimary,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    'الوقت المتبقي',
+                                    textAlign: TextAlign.right,
+                                    style:
+                                        context.textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: context.colors.onPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'استمر في التقدم، كل يوم يقربك من هدفك',
+                              textAlign: TextAlign.right,
+                              textDirection: TextDirection.rtl,
+                              style: context.textTheme.bodyMedium?.copyWith(
+                                color: context.colors.onPrimary
+                                    .withValues(alpha: 0.75),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              textDirection: TextDirection.rtl,
+                              children: intervals.entries.map((entry) {
+                                return Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 3),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10),
+                                      decoration: BoxDecoration(
+                                        color: context.colors.surface
+                                            .withValues(alpha: 0.86),
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            '${entry.value}',
+                                            style: context
+                                                .textTheme.headlineMedium
+                                                ?.copyWith(
+                                              fontWeight: FontWeight.w900,
+                                              color: context.colors.primary,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            entry.key,
+                                            style: context.textTheme.labelMedium
+                                                ?.copyWith(
+                                              color: context
+                                                  .colors.onSurfaceVariant
+                                                  .withValues(alpha: 0.75),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return buildWidget;
+                  }),
+            ),
+            Text(
+              'ماذا تريد أن تنجز اليوم؟',
+              style: context.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
               ),
             ),
-          );
-        }),
-        const SizedBox(height: 40)
-      ]),
+            const SizedBox(height: 12),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: pages.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.95,
+              ),
+              itemBuilder: (context, index) {
+                final element = pages[index];
+                return _HomeActionCard(
+                  title: element['title'] as String,
+                  icon: _pageIcons[element['title']] ?? Icons.school_outlined,
+                  onTap: () => Navigator.of(context).push(
+                    drillDown(element['route'] as Widget),
+                  ),
+                );
+              },
+            ),
+          ]),
       bottomNavigationBar: adService.bannerAd != null
           ? SizedBox(
               width: adService.bannerAd!.size.width.toDouble(),
@@ -402,6 +405,79 @@ class _HomePageState extends State<HomePage> {
               child: AdWidget(ad: adService.bannerAd!),
             )
           : null,
+    );
+  }
+}
+
+const Map<String, IconData> _pageIcons = {
+  'بكالوريا سابقة': Icons.menu_book_rounded,
+  'المقرر الدراسي': Icons.auto_stories_rounded,
+  'إختبار الحفظ': Icons.lightbulb_outline_rounded,
+  'حساب المعدل': Icons.calculate_rounded,
+};
+
+class _HomeActionCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _HomeActionCard({
+    required this.title,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Material(
+      color: colors.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(22),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        overlayColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.pressed)
+              ? colors.primary.withValues(alpha: 0.08)
+              : null,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Icon(
+                  Icons.arrow_outward_rounded,
+                  color: colors.onSurfaceVariant,
+                  size: 20,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(13),
+                decoration: BoxDecoration(
+                  color: colors.primaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  color: colors.onPrimaryContainer,
+                  size: 30,
+                ),
+              ),
+              Text(
+                title,
+                textAlign: TextAlign.right,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

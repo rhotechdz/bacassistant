@@ -673,7 +673,7 @@ class _ResultsPageState extends State<ResultsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF0EFFF),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(25),

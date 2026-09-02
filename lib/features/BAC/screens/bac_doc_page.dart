@@ -35,61 +35,17 @@ class BacDocViewer extends StatelessWidget {
     return Scaffold(
       body: BlocProvider(
         create: (context) => BacBloc(_currentDocument)..add(Initializing()),
-        child: BlocBuilder<BacBloc, BacDocState>(
-          builder: (context, state) {
-            if (state is BacDocInitial) {
-              return const Center(child: Text('Initializing...'));
-            }
-
-            if (state is BacDocLoading) {
-              return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
-                child: Center(
-                  key: ValueKey(state.status),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircularProgressIndicator(),
-                      const SizedBox(height: 20),
-                      Text(state.status),
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            if (state is BacDocReady) {
-              return BacOverviewPage(
-                documentPath: state.documentPath,
-                correctionPath: state.correctionPath,
-                year: year,
-              );
-            }
-
-            if (state is BacDocError) {
-              return Center(
-                child: Text(
-                    'Error: ${state.message}\nDocument Path: ${state.documentPath}'),
-              );
-            }
-
-            return const Center(child: Text('Unknown state'));
-          },
-        ),
+        child: BacOverviewPage(year: year),
       ),
     );
   }
 }
 
 class BacOverviewPage extends StatefulWidget {
-  final String documentPath;
-  final String correctionPath;
   final int year;
 
   const BacOverviewPage({
     super.key,
-    required this.documentPath,
-    required this.correctionPath,
     required this.year,
   });
 
@@ -101,11 +57,16 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
   bool _showCorrection = false;
 
   Future<void> _enterFullscreen() async {
+    final state = context.read<BacBloc>().state;
+    if (state is! BacDocReady) {
+      return;
+    }
+
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => BacFullscreenPdfPage(
-          documentPath: widget.documentPath,
-          correctionPath: widget.correctionPath,
+          documentPath: state.documentPath,
+          correctionPath: state.correctionPath,
           showCorrection: _showCorrection,
         ),
       ),
@@ -140,8 +101,13 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final selectedPath =
-        _showCorrection ? widget.correctionPath : widget.documentPath;
+    final state = context.watch<BacBloc>().state;
+    final isReady = state is BacDocReady;
+    final selectedPath = isReady
+        ? (_showCorrection
+            ? (state as BacDocReady).correctionPath
+            : state.documentPath)
+        : null;
     final subject = prefs.getString('chosenSubject') ?? 'علوم الطبيعة والحياة';
 
     return Scaffold(
@@ -270,18 +236,82 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                           transitionType: SharedAxisTransitionType.horizontal,
                           child: child,
                         ),
-                        child: PdfViewer.file(
-                          key: ValueKey(selectedPath),
-                          selectedPath,
-                          params: const PdfViewerParams(
-                            scrollPhysics: BouncingScrollPhysics(),
-                            sizeDelegateProvider:
-                                PdfViewerSizeDelegateProviderLegacy(
-                              minScale: 0.75,
-                              maxScale: 2.5,
-                            ),
-                          ),
-                        ),
+                        child: selectedPath == null
+                            ? Center(
+                                key: ValueKey(state),
+                                child: state is BacDocLoading
+                                    ? Container(
+                                        margin: const EdgeInsets.all(24),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                          vertical: 28,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: colorScheme.surfaceContainer,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border: Border.all(
+                                            color: colorScheme.outlineVariant,
+                                          ),
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            CircularProgressIndicator(
+                                              value: state.progress,
+                                              strokeWidth: 4,
+                                              backgroundColor: colorScheme
+                                                  .surfaceContainerHighest,
+                                              color: colorScheme.primary,
+                                            ),
+                                            const SizedBox(height: 20),
+                                            Text(
+                                              state.status ==
+                                                      'Downloading subject...'
+                                                  ? 'جاري تحميل الموضوع'
+                                                  : 'جاري تحميل الحل',
+                                              textAlign: TextAlign.center,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleMedium
+                                                  ?.copyWith(
+                                                    color:
+                                                        colorScheme.onSurface,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              '${(state.progress * 100).round()}%',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
+                                                    color: colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : Text(
+                                        state is BacDocError
+                                            ? state.message
+                                            : 'Initializing...',
+                                      ),
+                              )
+                            : PdfViewer.file(
+                                key: ValueKey(selectedPath),
+                                selectedPath,
+                                params: const PdfViewerParams(
+                                  scrollPhysics: BouncingScrollPhysics(),
+                                  sizeDelegateProvider:
+                                      PdfViewerSizeDelegateProviderLegacy(
+                                    minScale: 0.75,
+                                    maxScale: 2.5,
+                                  ),
+                                ),
+                              ),
                       ),
                     ),
                   ),
@@ -317,7 +347,7 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: _enterFullscreen,
+                      onPressed: isReady ? _enterFullscreen : null,
                       style: OutlinedButton.styleFrom(
                         foregroundColor: colorScheme.primary,
                         side: BorderSide(

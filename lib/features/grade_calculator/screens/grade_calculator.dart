@@ -258,297 +258,289 @@ class _GradeCalculatorPageState extends State<GradeCalculatorPage> {
         ],
       ),
       body: SafeArea(
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                children: [
+                  // Mandatory subjects card
+                  Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: subjectEntries.map((entry) {
+                        final controller =
+                            _controllers[entry.key] ?? TextEditingController();
+                        final focusNode = _focusNodes[entry.key] ?? FocusNode();
+                        final icon =
+                            subjectIcons[entry.key] ?? Icons.school_outlined;
+
+                        return Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // Subject info with icon
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        // Subject icon in circular badge
+                                        Container(
+                                          width: 40,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: colorScheme.primaryContainer,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            icon,
+                                            color:
+                                                colorScheme.onPrimaryContainer,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        // Subject name and factor
+                                        Expanded(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                entry.key,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium
+                                                    ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          colorScheme.onSurface,
+                                                    ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              Text(
+                                                'المعامل: ${entry.value}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .labelSmall
+                                                    ?.copyWith(
+                                                      color: colorScheme
+                                                          .onSurfaceVariant,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  // Input field
+                                  SizedBox(
+                                    width: 96,
+                                    child: TextField(
+                                      focusNode: focusNode,
+                                      controller: controller,
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      textDirection: TextDirection.ltr,
+                                      textInputAction:
+                                          subjectEntries.indexOf(entry) ==
+                                                  subjectEntries.length - 1
+                                              ? TextInputAction.done
+                                              : TextInputAction.next,
+                                      onSubmitted: (_) =>
+                                          _moveToNextField(entry.key),
+                                      onChanged: (value) {
+                                        final isInvalid =
+                                            _isGradeValueInvalid(value);
+                                        if (isInvalid) {
+                                          final currentField =
+                                              _focusNodes[entry.key];
+                                          if (currentField != null) {
+                                            currentField.requestFocus();
+                                          }
+                                        }
+                                        setState(() {});
+                                      },
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r'^\d*\.?\d{0,2}$'),
+                                        ),
+                                      ],
+                                      decoration: InputDecoration(
+                                        hintText: '0 - 20',
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 10,
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            color: colorScheme.outline,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            color: _isGradeValueInvalid(
+                                                    controller.text)
+                                                ? colorScheme.error
+                                                : colorScheme.outline,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            color: _isGradeValueInvalid(
+                                                    controller.text)
+                                                ? colorScheme.error
+                                                : colorScheme.primary,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            color: colorScheme.error,
+                                          ),
+                                        ),
+                                        focusedErrorBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            color: colorScheme.error,
+                                            width: 2,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Divider between rows
+                            if (subjectEntries.indexOf(entry) <
+                                subjectEntries.length - 1)
+                              Divider(
+                                height: 1,
+                                color: colorScheme.outlineVariant
+                                    .withValues(alpha: 0.3),
+                                indent: 16,
+                                endIndent: 16,
+                              ),
+                          ],
+                        );
+                      }).toList(),
+                    ),
                   ),
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  children: [
-                    // Mandatory subjects card
+                  const SizedBox(height: 24),
+                  // Optional subjects section
+                  if (optionalEntries.isNotEmpty)
                     Container(
                       decoration: BoxDecoration(
                         color: colorScheme.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Column(
-                        children: subjectEntries.map((entry) {
-                          final controller = _controllers[entry.key] ??
-                              TextEditingController();
-                          final focusNode =
-                              _focusNodes[entry.key] ?? FocusNode();
-                          final icon =
-                              subjectIcons[entry.key] ?? Icons.school_outlined;
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(
+                              16,
+                              16,
+                              16,
+                              12,
+                            ),
+                            child: Text(
+                              'مواد اختيارية',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.onSurface,
+                                  ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            child: Column(
+                              children: optionalEntries.map((entry) {
+                                final isEnabled = entry.value[1] as bool;
+                                final icon = subjectIcons[entry.key] ??
+                                    Icons.school_outlined;
 
-                          return Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    // Subject info with icon
-                                    Expanded(
-                                      child: Row(
-                                        children: [
-                                          // Subject icon in circular badge
-                                          Container(
-                                            width: 40,
-                                            height: 40,
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  colorScheme.primaryContainer,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Icon(
-                                              icon,
-                                              color: colorScheme
-                                                  .onPrimaryContainer,
-                                              size: 20,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          // Subject name and factor
-                                          Expanded(
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  entry.key,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyMedium
-                                                      ?.copyWith(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: colorScheme
-                                                            .onSurface,
-                                                      ),
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                Text(
-                                                  'المعامل: ${entry.value}',
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .labelSmall
-                                                      ?.copyWith(
-                                                        color: colorScheme
-                                                            .onSurfaceVariant,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 4),
+                                  child: ListTile(
+                                    dense: true,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 0,
                                     ),
-                                    const SizedBox(width: 16),
-                                    // Input field
-                                    SizedBox(
-                                      width: 96,
-                                      child: TextField(
-                                        focusNode: focusNode,
-                                        controller: controller,
-                                        keyboardType: const TextInputType
-                                            .numberWithOptions(
-                                          decimal: true,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                        textDirection: TextDirection.ltr,
-                                        textInputAction:
-                                            subjectEntries.indexOf(entry) ==
-                                                    subjectEntries.length - 1
-                                                ? TextInputAction.done
-                                                : TextInputAction.next,
-                                        onSubmitted: (_) =>
-                                            _moveToNextField(entry.key),
-                                        onChanged: (value) {
-                                          final isInvalid =
-                                              _isGradeValueInvalid(value);
-                                          if (isInvalid) {
-                                            final currentField =
-                                                _focusNodes[entry.key];
-                                            if (currentField != null) {
-                                              currentField.requestFocus();
-                                            }
-                                          }
-                                          setState(() {});
-                                        },
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(
-                                            RegExp(r'^\d*\.?\d{0,2}$'),
-                                          ),
-                                        ],
-                                        decoration: InputDecoration(
-                                          hintText: '0 - 20',
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 10,
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            borderSide: BorderSide(
-                                              color: colorScheme.outline,
-                                            ),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            borderSide: BorderSide(
-                                              color: _isGradeValueInvalid(
-                                                      controller.text)
-                                                  ? colorScheme.error
-                                                  : colorScheme.outline,
-                                            ),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            borderSide: BorderSide(
-                                              color: _isGradeValueInvalid(
-                                                      controller.text)
-                                                  ? colorScheme.error
-                                                  : colorScheme.primary,
-                                              width: 2,
-                                            ),
-                                          ),
-                                          errorBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            borderSide: BorderSide(
-                                              color: colorScheme.error,
-                                            ),
-                                          ),
-                                          focusedErrorBorder:
-                                              OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            borderSide: BorderSide(
-                                              color: colorScheme.error,
-                                              width: 2,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                    leading: Icon(
+                                      icon,
+                                      color: colorScheme.onSurfaceVariant,
+                                      size: 20,
                                     ),
-                                  ],
-                                ),
-                              ),
-                              // Divider between rows
-                              if (subjectEntries.indexOf(entry) <
-                                  subjectEntries.length - 1)
-                                Divider(
-                                  height: 1,
-                                  color: colorScheme.outlineVariant
-                                      .withValues(alpha: 0.3),
-                                  indent: 16,
-                                  endIndent: 16,
-                                ),
-                            ],
-                          );
-                        }).toList(),
+                                    title: Text(
+                                      entry.key,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            color: colorScheme.onSurface,
+                                          ),
+                                    ),
+                                    trailing: Checkbox(
+                                      value: isEnabled,
+                                      onChanged: (_) => _toggle(entry.key),
+                                    ),
+                                    onTap: () => _toggle(entry.key),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    // Optional subjects section
-                    if (optionalEntries.isNotEmpty)
-                      Container(
-                        decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                16,
-                                16,
-                                16,
-                                12,
-                              ),
-                              child: Text(
-                                'مواد اختيارية',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: colorScheme.onSurface,
-                                    ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              child: Column(
-                                children: optionalEntries.map((entry) {
-                                  final isEnabled = entry.value[1] as bool;
-                                  final icon = subjectIcons[entry.key] ??
-                                      Icons.school_outlined;
-
-                                  return Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    child: ListTile(
-                                      dense: true,
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 0,
-                                      ),
-                                      leading: Icon(
-                                        icon,
-                                        color: colorScheme.onSurfaceVariant,
-                                        size: 20,
-                                      ),
-                                      title: Text(
-                                        entry.key,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(
-                                              color: colorScheme.onSurface,
-                                            ),
-                                      ),
-                                      trailing: Checkbox(
-                                        value: isEnabled,
-                                        onChanged: (_) => _toggle(entry.key),
-                                      ),
-                                      onTap: () => _toggle(entry.key),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    const SizedBox(height: 80),
-                  ],
-                ),
+                  const SizedBox(height: 80),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       bottomSheet: Container(

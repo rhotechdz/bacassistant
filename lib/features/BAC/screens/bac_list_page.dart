@@ -26,6 +26,8 @@ class _BacPageState extends State<BacPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final selectedField =
+        prefs.getString('chosenField') ?? fieldDict.keys.first;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -115,7 +117,7 @@ class _BacPageState extends State<BacPage> {
                                         ),
                                   ),
                                   Text(
-                                    'شعبة علوم تجريبية',
+                                    selectedField,
                                     textAlign: TextAlign.right,
                                     style: Theme.of(context)
                                         .textTheme

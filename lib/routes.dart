@@ -2,7 +2,6 @@ import 'package:bacassistant/curriculum.dart';
 import 'package:bacassistant/features/BAC/screens/bac_list_page.dart';
 import 'package:bacassistant/features/grade_calculator/screens/grade_calculator.dart';
 import 'package:bacassistant/quiz.dart';
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 
 Route<T> drillDown<T>(Widget page) {
@@ -10,13 +9,24 @@ Route<T> drillDown<T>(Widget page) {
     transitionDuration: const Duration(milliseconds: 300),
     reverseTransitionDuration: const Duration(milliseconds: 300),
     pageBuilder: (_, __, ___) => page,
-    transitionsBuilder: (_, animation, secondaryAnimation, child) =>
-        SharedAxisTransition(
-      animation: animation,
-      secondaryAnimation: secondaryAnimation,
-      transitionType: SharedAxisTransitionType.horizontal,
-      child: child,
-    ),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final incomingOffset = Tween<Offset>(
+        begin: const Offset(1, 0),
+        end: Offset.zero,
+      ).chain(CurveTween(curve: Curves.easeOutCubic));
+      final outgoingOffset = Tween<Offset>(
+        begin: Offset.zero,
+        end: const Offset(-0.2, 0),
+      ).chain(CurveTween(curve: Curves.easeOutCubic));
+
+      return SlideTransition(
+        position: animation.drive(incomingOffset),
+        child: SlideTransition(
+          position: secondaryAnimation.drive(outgoingOffset),
+          child: child,
+        ),
+      );
+    },
   );
 }
 

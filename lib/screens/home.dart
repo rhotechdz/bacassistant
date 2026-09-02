@@ -375,7 +375,7 @@ class _HomePageState extends State<HomePage> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),

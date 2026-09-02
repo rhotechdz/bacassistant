@@ -20,24 +20,27 @@ class _BacPageState extends State<BacPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF7FF),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        backgroundColor: const Color(0xFFF7EEFF),
+        backgroundColor: colorScheme.surface,
         elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text(
           'مواضيع البكالوريا',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF1E1924),
+                color: colorScheme.onSurface,
               ),
         ),
         leading: IconButton(
           onPressed: () => Navigator.of(context).maybePop(),
           icon: const Icon(Icons.arrow_forward_rounded, size: 28),
-          color: const Color(0xFF1E1924),
+          color: colorScheme.onSurface,
         ),
       ),
       body: SafeArea(
@@ -50,7 +53,7 @@ class _BacPageState extends State<BacPage> {
                 'اختر دورة البكالوريا للإطلاع على المواضيع والحلول المفصلة.',
                 textAlign: TextAlign.right,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: const Color(0xFF4C4355),
+                      color: colorScheme.onSurfaceVariant,
                       height: 1.6,
                     ),
               ),
@@ -59,12 +62,12 @@ class _BacPageState extends State<BacPage> {
                 child: ListView.separated(
                   itemCount: years.length,
                   separatorBuilder: (context, index) =>
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final year = years[index];
 
                     return InkWell(
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(16),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -75,21 +78,24 @@ class _BacPageState extends State<BacPage> {
                         );
                       },
                       child: Container(
-                        height: 90,
+                        height: 84,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 14),
+                            horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEFE5F4),
-                          borderRadius: BorderRadius.circular(18),
+                          color: colorScheme.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: colorScheme.outlineVariant,
+                          ),
                         ),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.chevron_left_rounded,
-                              size: 28,
-                              color: Color(0xFF1E1924),
+                              size: 24,
+                              color: colorScheme.onSurfaceVariant,
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -103,7 +109,7 @@ class _BacPageState extends State<BacPage> {
                                         .titleLarge
                                         ?.copyWith(
                                           fontWeight: FontWeight.w700,
-                                          color: const Color(0xFF1E1924),
+                                          color: colorScheme.onSurface,
                                         ),
                                   ),
                                   Text(
@@ -113,23 +119,24 @@ class _BacPageState extends State<BacPage> {
                                         .textTheme
                                         .labelLarge
                                         ?.copyWith(
-                                          color: const Color(0xFF4C4355),
+                                          color: colorScheme.onSurfaceVariant,
                                         ),
                                   ),
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 16),
                             Container(
-                              width: 52,
-                              height: 52,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF8B2CF5),
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: colorScheme.primaryContainer,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.menu_book_rounded,
-                                color: Colors.white,
+                                color: colorScheme.onPrimaryContainer,
+                                size: 22,
                               ),
                             ),
                           ],

@@ -114,6 +114,7 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final selectedPath =
         _showCorrection ? widget.correctionPath : widget.documentPath;
     final subject = prefs.getString('chosenSubject') ?? 'علوم الطبيعة والحياة';
@@ -122,27 +123,28 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
         ? null
         : AppBar(
             automaticallyImplyLeading: false,
-            backgroundColor: const Color(0xFFF7EEFF),
+            backgroundColor: colorScheme.surface,
             elevation: 0,
+            scrolledUnderElevation: 0,
             titleSpacing: 0,
             leading: IconButton(
               onPressed: () => Navigator.of(context).maybePop(),
               icon: const Icon(Icons.arrow_back_rounded, size: 28),
-              color: const Color(0xFF1E1924),
+              color: colorScheme.onSurface,
             ),
             title: Text(
               'بكالوريا ${widget.year} - $subject',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1E1924),
+                      color: colorScheme.onSurface,
                   ),
             ),
             actions: [
               IconButton(
                 onPressed: () {},
                 icon: const Icon(Icons.more_vert_rounded, size: 24),
-                color: const Color(0xFF1E1924),
+                color: colorScheme.onSurface,
               ),
             ],
           );
@@ -150,7 +152,7 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFF7FF),
+        backgroundColor: colorScheme.surface,
         appBar: appBar,
         body: _fullscreen
             ? Stack(
@@ -174,7 +176,9 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                     child: IconButton(
                       onPressed: _exitFullscreen,
                       style: IconButton.styleFrom(
-                        backgroundColor: Colors.white.withValues(alpha: 0.9),
+                        backgroundColor:
+                            colorScheme.surface.withValues(alpha: 0.92),
+                        foregroundColor: colorScheme.onSurface,
                       ),
                       icon: const Icon(Icons.fullscreen_exit_rounded),
                     ),
@@ -191,8 +195,11 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                         height: 52,
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF0E6F4),
+                          color: colorScheme.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: colorScheme.outlineVariant,
+                          ),
                         ),
                         child: Row(
                           children: [
@@ -204,7 +211,7 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: !_showCorrection
-                                        ? const Color(0xFF8B2CF5)
+                                        ? colorScheme.primary
                                         : Colors.transparent,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -213,8 +220,8 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                                     'الموضوع',
                                     style: TextStyle(
                                       color: !_showCorrection
-                                          ? Colors.white
-                                          : const Color(0xFF4C4355),
+                                          ? colorScheme.onPrimary
+                                          : colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -229,7 +236,7 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: _showCorrection
-                                        ? const Color(0xFF8B2CF5)
+                                        ? colorScheme.primary
                                         : Colors.transparent,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -238,8 +245,8 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                                     'الحل',
                                     style: TextStyle(
                                       color: _showCorrection
-                                          ? Colors.white
-                                          : const Color(0xFF4C4355),
+                                          ? colorScheme.onPrimary
+                                          : colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -258,9 +265,10 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                           borderRadius: BorderRadius.circular(18),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFFEFE5F4),
-                              border:
-                                  Border.all(color: const Color(0xFFDCCBE9)),
+                              color: colorScheme.surfaceContainerLow,
+                              border: Border.all(
+                                color: colorScheme.outlineVariant,
+                              ),
                               borderRadius: BorderRadius.circular(18),
                             ),
                             child: SizedBox.expand(
@@ -289,8 +297,8 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                             child: ElevatedButton(
                               onPressed: () {},
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF8B2CF5),
-                                foregroundColor: Colors.white,
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
@@ -312,9 +320,9 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                             child: OutlinedButton(
                               onPressed: _enterFullscreen,
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: const Color(0xFF8B2CF5),
-                                side: const BorderSide(
-                                  color: Color(0xFF8B2CF5),
+                                foregroundColor: colorScheme.primary,
+                                side: BorderSide(
+                                  color: colorScheme.primary,
                                   width: 1.5,
                                 ),
                                 shape: RoundedRectangleBorder(

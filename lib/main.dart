@@ -110,44 +110,95 @@ Widget subjectsPicker(BuildContext context, Function setState,
               )));
 }
 
+const Map<String, IconData> fieldIcons = {
+  'شعبة علوم تجريبية': Icons.biotech_outlined,
+  'شعبة آداب وفلسفة': Icons.menu_book_outlined,
+  'شعبة لغات أجنبية': Icons.translate_outlined,
+  'شعبة تسيير واقتصاد': Icons.business_center_outlined,
+  'شعبة رياضيات': Icons.calculate_outlined,
+  'شعبة تقني رياضي': Icons.engineering_outlined,
+};
+
 Widget fieldPicker(BuildContext context, Function setState) {
   final availableFields =
       fieldList.isEmpty ? fieldDict.keys.toList() : fieldList;
+  final selectedField = prefs.getString('chosenField');
+  final colorScheme = Theme.of(context).colorScheme;
 
   return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-          availableFields.length,
-          (index) => InkWell(
-                borderRadius: BorderRadius.circular(20.0),
-                child: Container(
-                  height: 50,
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: 6.0),
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(20.0)),
-                  child: Text(
-                    ' ${availableFields[index]} ',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge!
-                        .copyWith(fontWeight: FontWeight.bold),
-                  ),
+    mainAxisSize: MainAxisSize.min,
+    children: List.generate(
+      availableFields.length,
+      (index) {
+        final field = availableFields[index] as String;
+        final isSelected = field == selectedField;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Material(
+            color: isSelected
+                ? colorScheme.primaryContainer
+                : colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(16),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  prefs.setString('chosenField', field);
+                  prefs.setString(
+                    'chosenSubject',
+                    subjectsMap[field].keys.elementAt(0),
+                  );
+                  chosenField = field;
+                  chosenSubject = subjectsMap[field].keys.elementAt(0);
+                });
+              },
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                child: Row(
+                  children: [
+                    Icon(
+                      fieldIcons[field] ?? Icons.school_outlined,
+                      color: isSelected
+                          ? colorScheme.onPrimaryContainer
+                          : colorScheme.onSurfaceVariant,
+                      size: 25,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        field,
+                        textDirection: TextDirection.rtl,
+                        textAlign: TextAlign.right,
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: isSelected
+                                      ? colorScheme.onPrimaryContainer
+                                      : colorScheme.onSurface,
+                                ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Icon(
+                      isSelected
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_unchecked,
+                      color: isSelected
+                          ? colorScheme.primary
+                          : colorScheme.outline,
+                      size: 22,
+                    ),
+                  ],
                 ),
-                onTap: () {
-                  String field = availableFields[index];
-                  Navigator.of(context).pop();
-                  setState(() {
-                    prefs.setString('chosenField', field);
-                    prefs.setString(
-                        'chosenSubject', subjectsMap[field].keys.elementAt(0));
-                    chosenField = field;
-                    chosenSubject = subjectsMap[field].keys.elementAt(0);
-                  });
-                },
-              )));
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+  );
 }
 
 void loadInterstitialAd() {

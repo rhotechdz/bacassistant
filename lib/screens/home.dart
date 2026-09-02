@@ -1,11 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bacassistant/main.dart';
 import 'package:bacassistant/routes.dart';
 import 'package:bacassistant/screens/introduction_flow/press_animation_button.dart';
+import 'package:bacassistant/themes/bloc/theme.dart';
 import 'package:bacassistant/utils/initializer.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 extension ThemeContext on BuildContext {
@@ -52,6 +55,123 @@ class _HomePageState extends State<HomePage> {
     return normalized;
   }
 
+  Future<int> _deleteCachedPdfFiles() async {
+    final cacheDirectory = Directory('$appStorage/bac_cache');
+    if (!await cacheDirectory.exists()) {
+      return 0;
+    }
+
+    var deletedCount = 0;
+    await for (final entity in cacheDirectory.list()) {
+      if (entity is File && entity.path.toLowerCase().endsWith('.pdf')) {
+        await entity.delete();
+        deletedCount++;
+      }
+    }
+    return deletedCount;
+  }
+
+  Future<void> _confirmDeleteCachedFiles() async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('حذف الملفات المحفوظة'),
+        content: const Text(
+          'هل تريد حذف ملفات البكالوريا المحفوظة على هذا الجهاز؟',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('إلغاء'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('حذف'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete != true || !mounted) {
+      return;
+    }
+
+    final deletedCount = await _deleteCachedPdfFiles();
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          deletedCount == 0
+              ? 'لا توجد ملفات محفوظة للحذف'
+              : 'تم حذف $deletedCount من ملفات البكالوريا',
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showFieldPicker() async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        scrollable: true,
+        title: Padding(
+          padding: const EdgeInsets.only(bottom: 2),
+          child: Text(
+            'إختر الشعبة',
+            textDirection: TextDirection.rtl,
+            textAlign: TextAlign.center,
+            style: context.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: context.colors.onPrimaryContainer,
+            ),
+          ),
+        ),
+        content: fieldPicker(context, setState),
+      ),
+    );
+  }
+
+  void _showSettings() {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => BlocBuilder<ThemeBloc, ThemeState>(
+        builder: (context, themeState) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.dark_mode_outlined),
+                title: const Text('الوضع الداكن'),
+                trailing: Switch(
+                  value: themeState.themeMode == ThemeMode.dark,
+                  onChanged: (_) =>
+                      context.read<ThemeBloc>().add(ToggleTheme()),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.school_outlined),
+                title: const Text('تغيير الشعبة'),
+                subtitle: Text(prefs.getString('chosenField') ?? ''),
+                onTap: _showFieldPicker,
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete_outline),
+                title: const Text('حذف الملفات المحفوظة'),
+                subtitle: const Text('حذف ملفات البكالوريا المحفوظة محلياً'),
+                onTap: _confirmDeleteCachedFiles,
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   /* @override
   void initState() {
     super.initState();
@@ -89,27 +209,10 @@ class _HomePageState extends State<HomePage> {
         //backgroundColor: const Color(0xFFF0EFFF),
         primary: true,
         leading: IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () => {
-                  showDialog(
-                      context: context,
-                      builder: (_) {
-                        return AlertDialog(
-                            scrollable: true,
-                            title: Padding(
-                              padding: const EdgeInsets.only(bottom: 2),
-                              child: Text('إختر الشعبة',
-                                  textDirection: TextDirection.rtl,
-                                  textAlign: TextAlign.center,
-                                  style: context.textTheme.headlineSmall!
-                                      .copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: context
-                                              .colors.onPrimaryContainer)),
-                            ),
-                            content: fieldPicker(context, setState));
-                      })
-                }),
+          icon: const Icon(Icons.settings_outlined),
+          tooltip: 'الإعدادات',
+          onPressed: _showSettings,
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),

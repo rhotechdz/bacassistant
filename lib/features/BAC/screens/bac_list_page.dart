@@ -178,12 +178,15 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF7FF),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFFF7EEFF),
+        backgroundColor: colorScheme.surface,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: false,
         titleSpacing: 0,
         title: Align(
@@ -194,7 +197,7 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
               'اختر المادة',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1E1924),
+                    color: colorScheme.onSurface,
                   ),
             ),
           ),
@@ -203,7 +206,7 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
           IconButton(
             onPressed: () => Navigator.of(context).maybePop(),
             icon: const Icon(Icons.arrow_forward_rounded, size: 28),
-            color: const Color(0xFF1E1924),
+            color: colorScheme.onSurface,
           ),
         ],
       ),
@@ -219,7 +222,7 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
                   'اختر المادة للاطلاع على المواضيع والحلول',
                   textAlign: TextAlign.right,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: const Color(0xFF4C4355),
+                        color: colorScheme.onSurfaceVariant,
                         height: 1.6,
                       ),
                 ),
@@ -229,13 +232,13 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
                 child: ListView.separated(
                   itemCount: subjects.length,
                   separatorBuilder: (context, index) =>
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final subject = subjects[index];
                     final icon = _subjectIcon(subject);
 
                     return InkWell(
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(16),
                       onTap: () {
                         prefs.setString('chosenSubject', subject);
                         Navigator.push(
@@ -254,8 +257,11 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEFE5F4),
-                          borderRadius: BorderRadius.circular(18),
+                          color: colorScheme.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: colorScheme.outlineVariant,
+                          ),
                         ),
                         child: Row(
                           children: [
@@ -269,7 +275,7 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
                                     .titleMedium
                                     ?.copyWith(
                                       fontWeight: FontWeight.w700,
-                                      color: const Color(0xFF1E1924),
+                                      color: colorScheme.onSurface,
                                     ),
                               ),
                             ),
@@ -277,12 +283,16 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
                             Container(
                               width: 48,
                               height: 48,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF8B2CF5),
+                              decoration: BoxDecoration(
+                                color: colorScheme.primaryContainer,
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(14)),
                               ),
-                              child: Icon(icon, color: Colors.white, size: 28),
+                              child: Icon(
+                                icon,
+                                color: colorScheme.onPrimaryContainer,
+                                size: 26,
+                              ),
                             ),
                           ],
                         ),

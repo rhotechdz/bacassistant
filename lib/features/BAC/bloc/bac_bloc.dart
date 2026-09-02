@@ -1,10 +1,11 @@
-
+import 'dart:io';
 
 import 'package:bacassistant/features/BAC/bloc/bac_doc_event.dart';
 import 'package:bacassistant/features/BAC/bloc/bac_doc_state.dart';
 import 'package:bacassistant/features/BAC/models/bac_document.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
 
 class BacBloc extends Bloc<BacDocEvent, BacDocState> {
   final BacDocument doc;
@@ -26,7 +27,11 @@ class BacBloc extends Bloc<BacDocEvent, BacDocState> {
         }
       } catch (e) {
         debugPrint('Error downloading document: $e');
-        add(Error('Error downloading document: $e', doc.path));
+        add(Error(
+          'تعذر تحميل الموضوع.',
+          doc.path,
+          isOffline: _isOfflineError(e),
+        ));
       }
     });
 
@@ -41,7 +46,11 @@ class BacBloc extends Bloc<BacDocEvent, BacDocState> {
         }
       } catch (e) {
         debugPrint('Error downloading correction: $e');
-        add(Error('Error downloading correction: $e', doc.correctionPath));
+        add(Error(
+          'تعذر تحميل الحل.',
+          doc.correctionPath,
+          isOffline: _isOfflineError(e),
+        ));
       }
     });
 
@@ -54,7 +63,20 @@ class BacBloc extends Bloc<BacDocEvent, BacDocState> {
     });
 
     on<Error>((event, emit) {
-      emit(BacDocError(event.message, event.documentPath));
+      emit(BacDocError(
+        event.message,
+        event.documentPath,
+        isOffline: event.isOffline,
+      ));
     });
+  }
+
+  bool _isOfflineError(Object error) {
+    return error is SocketException ||
+        (error is DioException &&
+            (error.type == DioExceptionType.connectionError ||
+                error.type == DioExceptionType.connectionTimeout ||
+                error.type == DioExceptionType.receiveTimeout ||
+                error.error is SocketException));
   }
 }

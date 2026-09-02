@@ -1,5 +1,3 @@
-
-
 abstract class BacDocState {}
 
 class BacDocInitial extends BacDocState {}
@@ -23,6 +21,7 @@ class BacDocReady extends BacDocState {
 class BacDocError extends BacDocState {
   final String message;
   final String documentPath;
+  final bool isOffline;
 
-  BacDocError(this.message, this.documentPath);
+  BacDocError(this.message, this.documentPath, {this.isOffline = false});
 }

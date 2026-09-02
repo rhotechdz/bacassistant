@@ -103,10 +103,8 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
     final colorScheme = Theme.of(context).colorScheme;
     final state = context.watch<BacBloc>().state;
     final isReady = state is BacDocReady;
-    final selectedPath = isReady
-        ? (_showCorrection
-            ? (state as BacDocReady).correctionPath
-            : state.documentPath)
+    final selectedPath = state is BacDocReady
+        ? (_showCorrection ? state.correctionPath : state.documentPath)
         : null;
     final subject = prefs.getString('chosenSubject') ?? 'علوم الطبيعة والحياة';
 
@@ -239,66 +237,74 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                         child: selectedPath == null
                             ? Center(
                                 key: ValueKey(state),
-                                child: state is BacDocLoading
-                                    ? Container(
-                                        margin: const EdgeInsets.all(24),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 24,
-                                          vertical: 28,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: colorScheme.surfaceContainer,
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          border: Border.all(
-                                            color: colorScheme.outlineVariant,
-                                          ),
-                                        ),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            CircularProgressIndicator(
-                                              value: state.progress,
-                                              strokeWidth: 4,
-                                              backgroundColor: colorScheme
-                                                  .surfaceContainerHighest,
-                                              color: colorScheme.primary,
-                                            ),
-                                            const SizedBox(height: 20),
-                                            Text(
-                                              state.status ==
-                                                      'Downloading subject...'
-                                                  ? 'جاري تحميل الموضوع'
-                                                  : 'جاري تحميل الحل',
-                                              textAlign: TextAlign.center,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleMedium
-                                                  ?.copyWith(
-                                                    color:
-                                                        colorScheme.onSurface,
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              '${(state.progress * 100).round()}%',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                    color: colorScheme
-                                                        .onSurfaceVariant,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
+                                child: state is BacDocError && state.isOffline
+                                    ? _OfflineDownloadPrompt(
+                                        message: state.message,
+                                        colorScheme: colorScheme,
                                       )
-                                    : Text(
-                                        state is BacDocError
-                                            ? state.message
-                                            : 'Initializing...',
-                                      ),
+                                    : state is BacDocLoading
+                                        ? Container(
+                                            margin: const EdgeInsets.all(24),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 24,
+                                              vertical: 28,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  colorScheme.surfaceContainer,
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              border: Border.all(
+                                                color:
+                                                    colorScheme.outlineVariant,
+                                              ),
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                CircularProgressIndicator(
+                                                  value: state.progress,
+                                                  strokeWidth: 4,
+                                                  backgroundColor: colorScheme
+                                                      .surfaceContainerHighest,
+                                                  color: colorScheme.primary,
+                                                ),
+                                                const SizedBox(height: 20),
+                                                Text(
+                                                  state.status ==
+                                                          'Downloading subject...'
+                                                      ? 'جاري تحميل الموضوع'
+                                                      : 'جاري تحميل الحل',
+                                                  textAlign: TextAlign.center,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleMedium
+                                                      ?.copyWith(
+                                                        color: colorScheme
+                                                            .onSurface,
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                      ),
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  '${(state.progress * 100).round()}%',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium
+                                                      ?.copyWith(
+                                                        color: colorScheme
+                                                            .onSurfaceVariant,
+                                                      ),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        : Text(
+                                            state is BacDocError
+                                                ? state.message
+                                                : 'Initializing...',
+                                          ),
                               )
                             : PdfViewer.file(
                                 key: ValueKey(selectedPath),
@@ -373,6 +379,70 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OfflineDownloadPrompt extends StatelessWidget {
+  final String message;
+  final ColorScheme colorScheme;
+
+  const _OfflineDownloadPrompt({
+    required this.message,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: colorScheme.errorContainer,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: colorScheme.error.withValues(alpha: 0.35),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.wifi_off_rounded,
+                size: 42,
+                color: colorScheme.onErrorContainer,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'لا يوجد اتصال بالإنترنت',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: colorScheme.onErrorContainer,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'اتصل بالإنترنت ثم أعد المحاولة لتحميل ملفات البكالوريا.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onErrorContainer,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onErrorContainer,
+                    ),
+              ),
+            ],
+          ),
         ),
       ),
     );

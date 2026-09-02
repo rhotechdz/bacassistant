@@ -1,5 +1,3 @@
-
-
 abstract class BacDocEvent {}
 
 class Initializing extends BacDocEvent {}
@@ -24,6 +22,7 @@ class Ready extends BacDocEvent {
 class Error extends BacDocEvent {
   final String message;
   final String documentPath;
+  final bool isOffline;
 
-  Error(this.message, this.documentPath);
+  Error(this.message, this.documentPath, {this.isOffline = false});
 }

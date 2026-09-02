@@ -1,8 +1,13 @@
 import 'package:bacassistant/features/BAC/screens/bac_doc_page.dart';
 import 'package:bacassistant/features/grade_calculator/screens/grade_calculator.dart';
+import 'package:bacassistant/routes.dart';
+import 'package:bacassistant/screens/introduction_flow/press_animation_button.dart';
 import 'package:bacassistant/utils/constants.dart';
 import 'package:bacassistant/utils/initializer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
+const _bacListItemAnimationDelay = 25;
 
 class BacPage extends StatefulWidget {
   const BacPage({super.key});
@@ -66,15 +71,12 @@ class _BacPageState extends State<BacPage> {
                   itemBuilder: (context, index) {
                     final year = years[index];
 
-                    return InkWell(
+                    return Tappable(
                       borderRadius: BorderRadius.circular(16),
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                BacSubjectSelectionPage(year: year),
-                          ),
+                          drillDown(BacSubjectSelectionPage(year: year)),
                         );
                       },
                       child: Container(
@@ -142,6 +144,18 @@ class _BacPageState extends State<BacPage> {
                           ],
                         ),
                       ),
+                    ).animate(
+                      delay: Duration(
+                        milliseconds: _bacListItemAnimationDelay * index,
+                      ),
+                      effects: const [
+                        FadeEffect(duration: Duration(milliseconds: 250)),
+                        SlideEffect(
+                          begin: Offset(0, 0.08),
+                          end: Offset.zero,
+                          duration: Duration(milliseconds: 250),
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -237,14 +251,14 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
                     final subject = subjects[index];
                     final icon = _subjectIcon(subject);
 
-                    return InkWell(
+                    return Tappable(
                       borderRadius: BorderRadius.circular(16),
                       onTap: () {
                         prefs.setString('chosenSubject', subject);
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => BacDocViewer(
+                          drillDown(
+                            BacDocViewer(
                               year: widget.year,
                               subject: subject,
                               field: field,
@@ -297,6 +311,18 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
                           ],
                         ),
                       ),
+                    ).animate(
+                      delay: Duration(
+                        milliseconds: _bacListItemAnimationDelay * index,
+                      ),
+                      effects: const [
+                        FadeEffect(duration: Duration(milliseconds: 250)),
+                        SlideEffect(
+                          begin: Offset(0, 0.08),
+                          end: Offset.zero,
+                          duration: Duration(milliseconds: 250),
+                        ),
+                      ],
                     );
                   },
                 ),

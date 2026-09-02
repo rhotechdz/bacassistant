@@ -1,18 +1,11 @@
 import 'dart:convert';
-import 'dart:developer' as developer;
 
-import 'package:animations/animations.dart';
 import 'package:bacassistant/main.dart';
 import 'package:bacassistant/routes.dart';
-import 'package:bacassistant/screens/introduction_flow/introduction_flow.dart';
 import 'package:bacassistant/screens/introduction_flow/press_animation_button.dart';
-import 'package:bacassistant/services/google_sign_in/auth_service.dart';
-import 'package:bacassistant/themes/bloc/theme.dart';
-import 'package:bacassistant/utils/constants.dart';
 import 'package:bacassistant/utils/initializer.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 extension ThemeContext on BuildContext {
@@ -81,33 +74,6 @@ class _HomePageState extends State<HomePage> {
     super.didChangeDependencies();
   } */
 
-  void _updateChosenField(String newField) {
-    if (newField.isEmpty) return;
-
-    final availableFields = fieldList.isEmpty ? fieldDict.keys.toList() : fieldList;
-    if (!availableFields.contains(newField)) return;
-
-    setState(() {
-      prefs.setString('chosenField', newField);
-      prefs.setString('chosenSubject', subjectsMap[newField].keys.elementAt(0));
-      chosenField = newField;
-      chosenSubject = subjectsMap[newField].keys.elementAt(0);
-    });
-  }
-
-  void _cycleChosenField() {
-    final availableFields = fieldList.isEmpty ? fieldDict.keys.toList() : fieldList;
-    if (availableFields.isEmpty) return;
-
-    final currentField = prefs.getString('chosenField') ?? availableFields.first;
-    final currentIndex = availableFields.indexOf(currentField);
-    final nextIndex = currentIndex == -1
-        ? 0
-        : (currentIndex + 1) % availableFields.length;
-
-    _updateChosenField(availableFields[nextIndex]);
-  }
-
   @override
   void dispose() {
     adService.bannerAd!.dispose();
@@ -156,67 +122,6 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: ListView(children: [
-        const SizedBox(height: 10),
-        BlocBuilder<ThemeBloc, ThemeState>(
-          builder: (context, state) {
-            return FilledButton(
-              onPressed: () {
-                context.read<ThemeBloc>().add(ToggleTheme());
-              },
-              child: state.themeMode == ThemeMode.light
-                  ? const Text('Switch to Dark Theme')
-                  : const Text('Switch to Light Theme'),
-            );
-          },
-        ),
-        FilledButton(
-          onPressed: () {
-            developer.Service.getInfo().then((info) {
-              debugPrint(info.serverUri.toString());
-            });
-          },
-          child: const Text('print devtools url'),
-        ),
-        FilledButton(
-          onPressed: () {
-            prefs.clear();
-          },
-          child: const Text('Clear prefs'),
-        ),
-        FilledButton(
-          onPressed: _cycleChosenField,
-          child: Text(
-            'Debug: Change chosenField (${prefs.getString('chosenField') ?? 'not set'})',
-          ),
-        ),
-        FilledButton(
-          onPressed: () {
-            AuthService().signOutWithGoogle();
-          },
-          child: const Text('Sign Out'),
-        ),
-        FilledButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const IntroductionFlow()));
-          },
-          child: const Text('Return to Introduction Screen'),
-        ),
-        FilledButton(
-          onPressed: () {
-            /* Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => BacDocument(
-                  year: 2020,
-                  subject: prefs.getString('chosenSubject')!,
-                  field: prefs.getString('chosenField')!
-                ).openDocument(appStorage))
-              ); */
-          },
-          child: const Text('Open Document'),
-        ),
         Container(
           margin: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -378,16 +283,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 onPressed: () {
                   Navigator.of(context).push(
-                    PageRouteBuilder(
-                      pageBuilder: (_, __, ___) => element["route"],
-                      transitionDuration: const Duration(milliseconds: 100),
-                      transitionsBuilder:
-                          (_, animation, secondaryAnimation, child) =>
-                              FadeThroughTransition(
-                                  animation: animation,
-                                  secondaryAnimation: secondaryAnimation,
-                                  child: child),
-                    ),
+                    drillDown(element["route"] as Widget),
                   );
                 },
               ),

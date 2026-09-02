@@ -1,23 +1,29 @@
+import 'package:bacassistant/themes/ui_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-final ThemeData lightTheme = ThemeData(
+final ColorScheme darkColorScheme = ColorScheme.fromSeed(
+  seedColor: AppColorsDark.primary,
+  brightness: Brightness.dark,
+);
+
+final ThemeData darkTheme = ThemeData(
+  colorScheme: darkColorScheme,
+  fontFamily: 'Tajawal',
   useMaterial3: true,
   splashFactory: InkRipple.splashFactory,
-  fontFamily: 'Tajawal',
-  colorSchemeSeed: Colors.indigo,
-  brightness: Brightness.dark,
   appBarTheme: AppBarTheme(
-    backgroundColor: const Color(0xFFF0EFFF),
-    iconTheme: IconThemeData(
-      color: Colors.lightBlue[300]
+    backgroundColor: darkColorScheme.surface,
+    foregroundColor: darkColorScheme.onSurface,
+    surfaceTintColor: Colors.transparent,
+    elevation: 0,
+    scrolledUnderElevation: 0,
+    systemOverlayStyle: SystemUiOverlayStyle(
+      statusBarColor: darkColorScheme.surface,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: darkColorScheme.surface,
+      systemNavigationBarIconBrightness: Brightness.light,
     ),
   ),
-  /* colorScheme: ColorScheme.fromSeed(
-    seedColor: Colors.blue, // change seed for your brand color
-    brightness: Brightness.light,
-  ), */
-  textTheme: const TextTheme(
-    bodyLarge: TextStyle(fontSize: 16),
-    bodyMedium: TextStyle(fontSize: 14),
-  ),
+  scaffoldBackgroundColor: darkColorScheme.surface,
 );

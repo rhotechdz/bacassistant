@@ -8,13 +8,20 @@ import 'package:bacassistant/services/google_sign_in/auth_bloc.dart';
 import 'package:bacassistant/services/google_sign_in/auth_event.dart';
 import 'package:bacassistant/services/google_sign_in/auth_state.dart';
 import 'package:bacassistant/themes/bloc/theme.dart';
+import 'package:bacassistant/themes/dark_theme.dart';
+import 'package:bacassistant/themes/light_theme.dart';
 import 'package:bacassistant/utils/constants.dart';
 import 'package:bacassistant/utils/initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.manual,
+    overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
+  );
   await Initializer.run();
   fieldList = fieldDict.keys.toList();
   runApp(MultiBlocProvider(
@@ -36,16 +43,12 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'BAC Guide',
           themeMode: state.themeMode,
-          darkTheme: ThemeData.dark(),
-          //theme: lightTheme,
-          theme: ThemeData(
-            fontFamily: 'Tajawal',
-            colorScheme: ColorScheme.fromSeed(
-              seedColor:
-                  Colors.deepPurpleAccent, // change seed for your brand color
-              brightness: Brightness.light,
-            ),
-          ),
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          builder: (context, child) => Directionality(
+                textDirection: TextDirection.rtl,
+                child: child!,
+              ),
           routes: {
             '/grade_calculator': (context) => GradeCalculatorPage(),
             '/bac_list': (context) => BacPage(),
@@ -108,7 +111,8 @@ Widget subjectsPicker(BuildContext context, Function setState,
 }
 
 Widget fieldPicker(BuildContext context, Function setState) {
-  final availableFields = fieldList.isEmpty ? fieldDict.keys.toList() : fieldList;
+  final availableFields =
+      fieldList.isEmpty ? fieldDict.keys.toList() : fieldList;
 
   return Column(
       crossAxisAlignment: CrossAxisAlignment.center,

@@ -41,14 +41,18 @@ class BacDocViewer extends StatelessWidget {
             }
 
             if (state is BacDocLoading) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 20),
-                    Text(state.status),
-                  ],
+              return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: Center(
+                  key: ValueKey(state.status),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 20),
+                      Text(state.status),
+                    ],
+                  ),
                 ),
               );
             }
@@ -98,7 +102,7 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
 
   @override
   void dispose() {
-    _exitFullscreen();
+    _restoreSystemUi();
     super.dispose();
   }
 
@@ -109,7 +113,14 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
 
   void _exitFullscreen() {
     setState(() => _fullscreen = false);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    _restoreSystemUi();
+  }
+
+  void _restoreSystemUi() {
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
+    );
   }
 
   @override
@@ -137,7 +148,7 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
-                      color: colorScheme.onSurface,
+                    color: colorScheme.onSurface,
                   ),
             ),
             actions: [
@@ -149,205 +160,199 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
             ],
           );
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: colorScheme.surface,
-        appBar: appBar,
-        body: _fullscreen
-            ? Stack(
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      appBar: appBar,
+      body: _fullscreen
+          ? Stack(
+              children: [
+                Positioned.fill(
+                  child: PdfViewer.file(
+                    selectedPath,
+                    params: const PdfViewerParams(
+                      scrollPhysics: BouncingScrollPhysics(),
+                      sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
+                        minScale: 0.75,
+                        maxScale: 2.5,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: IconButton(
+                    onPressed: _exitFullscreen,
+                    style: IconButton.styleFrom(
+                      backgroundColor:
+                          colorScheme.surface.withValues(alpha: 0.92),
+                      foregroundColor: colorScheme.onSurface,
+                    ),
+                    icon: const Icon(Icons.fullscreen_exit_rounded),
+                  ),
+                ),
+              ],
+            )
+          : SafeArea(
+              child: Column(
                 children: [
-                  Positioned.fill(
-                    child: PdfViewer.file(
-                      selectedPath,
-                      params: const PdfViewerParams(
-                        scrollPhysics: BouncingScrollPhysics(),
-                        sizeDelegateProvider:
-                            PdfViewerSizeDelegateProviderLegacy(
-                          minScale: 0.75,
-                          maxScale: 2.5,
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: Container(
+                      height: 52,
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: colorScheme.outlineVariant,
                         ),
                       ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: IconButton(
-                      onPressed: _exitFullscreen,
-                      style: IconButton.styleFrom(
-                        backgroundColor:
-                            colorScheme.surface.withValues(alpha: 0.92),
-                        foregroundColor: colorScheme.onSurface,
-                      ),
-                      icon: const Icon(Icons.fullscreen_exit_rounded),
-                    ),
-                  ),
-                ],
-              )
-            : SafeArea(
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                      child: Container(
-                        height: 52,
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: colorScheme.outlineVariant,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                onTap: () =>
-                                    setState(() => _showCorrection = false),
-                                borderRadius: BorderRadius.circular(10),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: !_showCorrection
-                                        ? colorScheme.primary
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'الموضوع',
-                                    style: TextStyle(
-                                      color: !_showCorrection
-                                          ? colorScheme.onPrimary
-                                          : colorScheme.onSurfaceVariant,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () =>
-                                    setState(() => _showCorrection = true),
-                                borderRadius: BorderRadius.circular(10),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: _showCorrection
-                                        ? colorScheme.primary
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'الحل',
-                                    style: TextStyle(
-                                      color: _showCorrection
-                                          ? colorScheme.onPrimary
-                                          : colorScheme.onSurfaceVariant,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: colorScheme.surfaceContainerLow,
-                              border: Border.all(
-                                color: colorScheme.outlineVariant,
-                              ),
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                            child: SizedBox.expand(
-                              child: PdfViewer.file(
-                                selectedPath,
-                                params: const PdfViewerParams(
-                                  scrollPhysics: BouncingScrollPhysics(),
-                                  sizeDelegateProvider:
-                                      PdfViewerSizeDelegateProviderLegacy(
-                                    minScale: 0.75,
-                                    maxScale: 2.5,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       child: Row(
                         children: [
                           Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: colorScheme.primary,
-                                foregroundColor: colorScheme.onPrimary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                            child: InkWell(
+                              onTap: () =>
+                                  setState(() => _showCorrection = false),
+                              borderRadius: BorderRadius.circular(10),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: !_showCorrection
+                                      ? colorScheme.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(Icons.print_rounded),
-                                  SizedBox(width: 8),
-                                  Text('طباعة'),
-                                ],
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'الموضوع',
+                                  style: TextStyle(
+                                    color: !_showCorrection
+                                        ? colorScheme.onPrimary
+                                        : colorScheme.onSurfaceVariant,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 12),
                           Expanded(
-                            child: OutlinedButton(
-                              onPressed: _enterFullscreen,
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: colorScheme.primary,
-                                side: BorderSide(
-                                  color: colorScheme.primary,
-                                  width: 1.5,
+                            child: InkWell(
+                              onTap: () =>
+                                  setState(() => _showCorrection = true),
+                              borderRadius: BorderRadius.circular(10),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: _showCorrection
+                                      ? colorScheme.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'الحل',
+                                  style: TextStyle(
+                                    color: _showCorrection
+                                        ? colorScheme.onPrimary
+                                        : colorScheme.onSurfaceVariant,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(Icons.open_in_new_rounded),
-                                  SizedBox(width: 8),
-                                  Text('فتح'),
-                                ],
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(18),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerLow,
+                            border: Border.all(
+                              color: colorScheme.outlineVariant,
+                            ),
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: SizedBox.expand(
+                            child: PdfViewer.file(
+                              selectedPath,
+                              params: const PdfViewerParams(
+                                scrollPhysics: BouncingScrollPhysics(),
+                                sizeDelegateProvider:
+                                    PdfViewerSizeDelegateProviderLegacy(
+                                  minScale: 0.75,
+                                  maxScale: 2.5,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colorScheme.primary,
+                              foregroundColor: colorScheme.onPrimary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.print_rounded),
+                                SizedBox(width: 8),
+                                Text('طباعة'),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: _enterFullscreen,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: colorScheme.primary,
+                              side: BorderSide(
+                                color: colorScheme.primary,
+                                width: 1.5,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.open_in_new_rounded),
+                                SizedBox(width: 8),
+                                Text('فتح'),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-      ),
+            ),
     );
   }
 }

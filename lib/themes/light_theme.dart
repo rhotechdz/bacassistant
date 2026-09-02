@@ -1,36 +1,29 @@
-import 'package:bacassistant/themes/ui_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:bacassistant/themes/ui_colors.dart';
 
-ThemeData lightTheme = ThemeData(
-  fontFamily: 'Tajawal',
-  useMaterial3: true,
-  splashFactory: InkRipple.splashFactory,
-  colorScheme: ColorScheme(
-    brightness: Brightness.light,
-    primary: AppColors.primary,
-    onPrimary: Colors.white, // or AppColors.text depending on contrast
-    secondary: AppColors.secondary,
-    onSecondary: Colors.white,
-    error: AppColors.danger,
-    onError: Colors.white,
-    surface: AppColors.bgLight,
-    onSurface: AppColors.text,
-  ),
+final ColorScheme lightColorScheme = ColorScheme.fromSeed(
+  seedColor: AppColors.primary,
+  brightness: Brightness.light,
 );
 
-ThemeData darkTheme = ThemeData(
+ThemeData lightTheme = ThemeData(
+  colorScheme: lightColorScheme,
   fontFamily: 'Tajawal',
   useMaterial3: true,
   splashFactory: InkRipple.splashFactory,
-  colorScheme: ColorScheme(
-    brightness: Brightness.dark,
-    primary: AppColorsDark.primary,
-    onPrimary: AppColorsDark.text, // or AppColorsDark.text for contrast
-    secondary: AppColorsDark.secondary,
-    onSecondary: AppColorsDark.text,
-    error: AppColorsDark.danger,
-    onError: AppColorsDark.text,
-    surface: AppColorsDark.bgLight,
-    onSurface: AppColorsDark.text,
+  appBarTheme: AppBarTheme(
+    backgroundColor: lightColorScheme.surface,
+    foregroundColor: lightColorScheme.onSurface,
+    surfaceTintColor: Colors.transparent,
+    elevation: 0,
+    scrolledUnderElevation: 0,
+    systemOverlayStyle: SystemUiOverlayStyle(
+      statusBarColor: lightColorScheme.surface,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: lightColorScheme.surface,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
   ),
+  scaffoldBackgroundColor: lightColorScheme.surface,
 );

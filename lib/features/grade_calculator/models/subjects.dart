@@ -13,8 +13,7 @@ class Subjects {
 
   Subjects() {
     map = Map<String, int>.from(subjectsMap[field] as Map)
-      ..remove('اللغة الأمازيغية')
-      ..remove('التربية البدنية');
+      ..removeWhere((subject, _) => optional.containsKey(subject));
     unify();
   }
 

@@ -189,8 +189,11 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
     field = prefs.getString('chosenField') ?? fieldDict.keys.first;
   }
 
-  List<String> get subjects =>
-      (subjectsMap[field] as Map<String, dynamic>).keys.cast<String>().toList();
+  List<String> get subjects => (subjectsMap[field] as Map<String, dynamic>)
+      .keys
+      .cast<String>()
+      .where((subject) => subject != 'التربية البدنية')
+      .toList();
 
   @override
   Widget build(BuildContext context) {

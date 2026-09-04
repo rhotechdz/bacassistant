@@ -1,6 +1,6 @@
 import 'package:bacassistant/features/BAC/screens/bac_list_page.dart';
 import 'package:bacassistant/features/grade_calculator/screens/grade_calculator.dart';
-import 'package:bacassistant/quiz.dart';
+import 'package:bacassistant/features/quiz/views/quiz_subject_page.dart';
 import 'package:bacassistant/screens/home.dart';
 import 'package:bacassistant/screens/introduction_flow/introduction_flow.dart';
 import 'package:bacassistant/screens/login.dart';
@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
           routes: {
             '/grade_calculator': (context) => GradeCalculatorPage(),
             '/bac_list': (context) => BacPage(),
-            '/quiz': (context) => QuizPage(),
+            '/quiz': (context) => const QuizSubjectPage(),
           },
           home: BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {

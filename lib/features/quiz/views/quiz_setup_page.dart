@@ -49,6 +49,7 @@ class _QuizSetupPageState extends State<QuizSetupPage> {
   }
 
   Widget _buildContent(BuildContext context, QuizSubjectData data) {
+    final colorScheme = Theme.of(context).colorScheme;
     final availableQuestions = data.questions
         .where((question) => _viewModel.selectedUnits.contains(question.unit))
         .length;
@@ -64,20 +65,88 @@ class _QuizSetupPageState extends State<QuizSetupPage> {
                 )),
         Text('الشعبة: ${data.field}'),
         const SizedBox(height: 24),
-        Text('اختر الوحدات',
+        Text('اختر الوحدات الدراسية',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 )),
         const SizedBox(height: 8),
-        ...data.units.map(
-          (unit) => CheckboxListTile(
-            value: _viewModel.selectedUnits.contains(unit.name),
-            title: Text(unit.name),
-            subtitle: Text('${data.questions.where((q) => q.unit == unit.name).length} أسئلة'),
-            onChanged: (_) => _viewModel.toggleUnit(unit.name),
-            contentPadding: EdgeInsets.zero,
-          ),
-        ),
+        ...data.units.map((unit) {
+          final selected = _viewModel.selectedUnits.contains(unit.name);
+          final questionCount =
+              data.questions.where((q) => q.unit == unit.name).length;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () => _viewModel.toggleUnit(unit.name),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? colorScheme.primaryContainer
+                      : colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: selected
+                        ? colorScheme.primary
+                        : colorScheme.outlineVariant,
+                    width: selected ? 1.5 : 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      selected
+                          ? Icons.check_circle_rounded
+                          : Icons.radio_button_unchecked_rounded,
+                      color: selected
+                          ? colorScheme.primary
+                          : colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            unit.name,
+                            textAlign: TextAlign.right,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                          Text(
+                            '$questionCount أسئلة',
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    CircleAvatar(
+                      radius: 22,
+                      backgroundColor: selected
+                          ? colorScheme.primary
+                          : colorScheme.primaryContainer,
+                      child: Text(
+                        '${unit.order}',
+                        style: TextStyle(
+                          color: selected
+                              ? colorScheme.onPrimary
+                              : colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
         const SizedBox(height: 16),
         Text('عدد الأسئلة: ${_viewModel.questionCount}',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(

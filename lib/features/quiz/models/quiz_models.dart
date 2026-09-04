@@ -17,7 +17,10 @@ class QuizQuestion {
   final int correctIndex;
   final String explanation;
 
-  factory QuizQuestion.fromJson(Map<String, dynamic> json) {
+  factory QuizQuestion.fromJson(
+    Map<String, dynamic> json, {
+    String? unit,
+  }) {
     final options = (json['options'] as List<dynamic>? ?? const [])
         .map((option) => option.toString())
         .toList(growable: false);
@@ -29,7 +32,7 @@ class QuizQuestion {
 
     return QuizQuestion(
       id: json['id'].toString(),
-      unit: json['lesson'].toString(),
+      unit: unit ?? json['lesson'].toString(),
       text: json['question'].toString(),
       options: options,
       correctIndex: correctIndex,
@@ -43,17 +46,23 @@ class QuizUnit {
     required this.name,
     required this.order,
     required this.weight,
+    required this.lessons,
   });
 
   final String name;
   final int order;
   final int weight;
+  final List<String> lessons;
 
-  factory QuizUnit.fromJson(Map<String, dynamic> json) {
+  factory QuizUnit.fromJson(
+    Map<String, dynamic> json, {
+    List<String> lessons = const [],
+  }) {
     return QuizUnit(
       name: json['name'].toString(),
       order: (json['order'] as num?)?.toInt() ?? 0,
       weight: (json['weight'] as num?)?.toInt() ?? 0,
+      lessons: lessons,
     );
   }
 }

@@ -111,19 +111,50 @@ class _QuizPageState extends State<QuizPage> {
           ..._question.options.asMap().entries.map(
                 (entry) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: Card(
-                    child: ListTile(
-                      title: Text(entry.value),
-                      leading: Icon(
-                        selectedAnswer == entry.key
-                            ? Icons.radio_button_checked
-                            : Icons.radio_button_unchecked,
-                        color: selectedAnswer == entry.key
-                            ? Theme.of(context).colorScheme.primary
-                            : null,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () => setState(
+                      () => _answers[_currentIndex] = entry.key,
+                    ),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 160),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 15,
                       ),
-                      onTap: () => setState(
-                        () => _answers[_currentIndex] = entry.key,
+                      decoration: BoxDecoration(
+                        color: selectedAnswer == entry.key
+                            ? Theme.of(context).colorScheme.primaryContainer
+                            : Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: selectedAnswer == entry.key
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.outlineVariant,
+                          width: selectedAnswer == entry.key ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            selectedAnswer == entry.key
+                                ? Icons.check_circle_rounded
+                                : Icons.radio_button_unchecked_rounded,
+                            color: selectedAnswer == entry.key
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              entry.value,
+                              textAlign: TextAlign.right,
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

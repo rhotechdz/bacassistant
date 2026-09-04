@@ -51,14 +51,43 @@ class QuizSubjectPage extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 20),
-            InkWell(
-              borderRadius: BorderRadius.circular(16),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const QuizSetupPage(),
+            ...const [
+              _QuizSubjectEntry(
+                subject: 'الرياضيات',
+                subtitle: 'الوحدات والأسئلة المتاحة حالياً',
+                icon: Icons.functions_rounded,
+              ),
+              _QuizSubjectEntry(
+                subject: 'العلوم الفيزيائية',
+                subtitle: 'الوحدات والأسئلة المتاحة حالياً',
+                icon: Icons.science_outlined,
+              ),
+            ].map(
+              (entry) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => QuizSetupPage(subject: entry.subject),
+                    ),
+                  ),
+                  child: _buildSubjectEntry(context, colorScheme, entry),
                 ),
               ),
-              child: Container(
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubjectEntry(
+    BuildContext context,
+    ColorScheme colorScheme,
+    _QuizSubjectEntry entry,
+  ) {
+    return Container(
                 height: 92,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -81,7 +110,7 @@ class QuizSubjectPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'الرياضيات',
+                            entry.subject,
                             textAlign: TextAlign.right,
                             style: Theme.of(context)
                                 .textTheme
@@ -92,7 +121,7 @@ class QuizSubjectPage extends StatelessWidget {
                                 ),
                           ),
                           Text(
-                            'الوحدات والأسئلة المتاحة حالياً',
+                            entry.subtitle,
                             textAlign: TextAlign.right,
                             style: Theme.of(context)
                                 .textTheme
@@ -113,18 +142,25 @@ class QuizSubjectPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(
-                        Icons.functions_rounded,
+                        entry.icon,
                         color: colorScheme.onPrimaryContainer,
                         size: 27,
                       ),
                     ),
                   ],
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
+}
+
+class _QuizSubjectEntry {
+  const _QuizSubjectEntry({
+    required this.subject,
+    required this.subtitle,
+    required this.icon,
+  });
+
+  final String subject;
+  final String subtitle;
+  final IconData icon;
 }

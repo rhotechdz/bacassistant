@@ -6,7 +6,9 @@ import 'package:bacassistant/utils/initializer.dart';
 import 'package:flutter/material.dart';
 
 class QuizSetupPage extends StatefulWidget {
-  const QuizSetupPage({super.key});
+  const QuizSetupPage({super.key, required this.subject});
+
+  final String subject;
 
   @override
   State<QuizSetupPage> createState() => _QuizSetupPageState();
@@ -19,7 +21,10 @@ class _QuizSetupPageState extends State<QuizSetupPage> {
   void initState() {
     super.initState();
     _viewModel = QuizViewModel(repository: const QuizRepository())
-      ..load(field: prefs.getString('chosenField') ?? '');
+      ..load(
+        subject: widget.subject,
+        field: prefs.getString('chosenField') ?? '',
+      );
   }
 
   @override

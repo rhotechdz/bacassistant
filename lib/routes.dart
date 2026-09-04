@@ -33,7 +33,7 @@ Route<T> drillDown<T>(Widget page) {
 const List<Map> pages = [
   {"title": "بكالوريا سابقة", "icon": "graduate.png", "route": BacPage()},
   {"title": "المقرر الدراسي", "icon": "book.png", "route": CurriculumPage()},
-  {"title": "اختبار الرياضيات", "icon": "idea.png", "route": QuizSubjectPage()},
+  {"title": "اختبر نفسك", "icon": "idea.png", "route": QuizSubjectPage()},
   {
     "title": "حساب المعدل",
     "icon": "calculator.png",

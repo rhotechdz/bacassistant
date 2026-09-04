@@ -16,10 +16,12 @@ class QuizViewModel extends ChangeNotifier {
   Set<String> get selectedUnits => Set.unmodifiable(_selectedUnits);
   int get questionCount => _questionCount;
 
-  Future<void> load({required String field}) async {
+  Future<void> load({required String subject, required String field}) async {
     try {
       _error = null;
-      _data = await _repository.loadMathData(field: field);
+      _data = subject == 'العلوم الفيزيائية'
+          ? await _repository.loadPhysicsData()
+          : await _repository.loadMathData(field: field);
       _selectedUnits = _data!.units.map((unit) => unit.name).toSet();
       _questionCount = _questionCount.clamp(15, 30);
     } catch (error) {

@@ -120,21 +120,58 @@ class QuizResultsPage extends StatelessWidget {
                                     ?.copyWith(fontWeight: FontWeight.w700),
                               ),
                               const SizedBox(height: 8),
-                              Text(
-                                answer == null
-                                    ? 'لم تتم الإجابة\nالإجابة الصحيحة: ${question.options[question.correctIndex]}'
-                                    : correct
-                                        ? 'إجابة صحيحة'
-                                        : 'الإجابة الصحيحة: ${question.options[question.correctIndex]}\n${question.explanation}',
-                                textAlign: TextAlign.right,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      color: colorScheme.onSurfaceVariant,
-                                      height: 1.5,
-                                    ),
-                              ),
+                              if (answer == null)
+                                Text(
+                                  'لم تتم الإجابة\nالإجابة الصحيحة: ${question.options[question.correctIndex]}',
+                                  textAlign: TextAlign.right,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                        height: 1.5,
+                                      ),
+                                )
+                              else if (correct)
+                                Text(
+                                  'الإجابة الصحيحة: ${question.options[question.correctIndex]}',
+                                  textAlign: TextAlign.right,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                        height: 1.5,
+                                      ),
+                                )
+                              else ...[
+                                Text(
+                                  'إجابتك: ${question.options[answer]}\nالإجابة الصحيحة: ${question.options[question.correctIndex]}',
+                                  textAlign: TextAlign.right,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                        height: 1.5,
+                                      ),
+                                ),
+                                Divider(
+                                  height: 20,
+                                  color: colorScheme.outlineVariant,
+                                ),
+                                Text(
+                                  question.explanation,
+                                  textAlign: TextAlign.right,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                        height: 1.5,
+                                      ),
+                                ),
+                              ],
                             ],
                           ),
                         ),

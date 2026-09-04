@@ -412,7 +412,7 @@ class _HomePageState extends State<HomePage> {
 const Map<String, IconData> _pageIcons = {
   'بكالوريا سابقة': Icons.menu_book_rounded,
   'المقرر الدراسي': Icons.auto_stories_rounded,
-  'إختبار الحفظ': Icons.lightbulb_outline_rounded,
+  'اختبر نفسك': Icons.lightbulb_outline_rounded,
   'حساب المعدل': Icons.calculate_rounded,
 };
 

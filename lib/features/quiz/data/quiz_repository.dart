@@ -76,6 +76,54 @@ class QuizRepository {
     );
   }
 
+  Future<QuizSubjectData> loadPhysicsData() async {
+    final jsonString = await (_bundle ?? rootBundle)
+        .loadString('assets/data/curriculum_physics.json');
+    final decoded = jsonDecode(jsonString);
+    if (decoded is! Map<String, dynamic>) {
+      throw const FormatException('The physics curriculum must be a JSON object.');
+    }
+    final subjectData = decoded['العلوم الفيزيائية'];
+    if (subjectData is! Map<String, dynamic>) {
+      throw const FormatException('Physics subject data is missing.');
+    }
+    final rawUnits = subjectData['units'];
+    if (rawUnits is! List) {
+      throw const FormatException('Physics unit data is missing.');
+    }
+
+    final units = <QuizUnit>[];
+    final questions = <QuizQuestion>[];
+    for (final rawUnit in rawUnits) {
+      final unitJson = Map<String, dynamic>.from(rawUnit as Map);
+      final unitName = unitJson['name'].toString();
+      final lesson = unitJson['lesson']?.toString() ?? unitName;
+      units.add(QuizUnit(
+        name: unitName,
+        order: (unitJson['order'] as num?)?.toInt() ?? units.length + 1,
+        weight: (unitJson['weight'] as num?)?.toInt() ?? 0,
+        lessons: [lesson],
+      ));
+      final rawQuestions = unitJson['questions'];
+      if (rawQuestions is! List) continue;
+      for (final rawQuestion in rawQuestions) {
+        questions.add(
+          QuizQuestion.fromJson(
+            Map<String, dynamic>.from(rawQuestion as Map),
+            unit: unitName,
+          ),
+        );
+      }
+    }
+
+    return QuizSubjectData(
+      subject: 'العلوم الفيزيائية',
+      field: 'الشعب العلمية',
+      units: units,
+      questions: questions,
+    );
+  }
+
   static const _unitGrouping = <String, Map<String, List<String>>>{
     'شعبة علوم تجريبية': {
       'الوحدة الأولى': [

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:bacassistant/main.dart';
 import 'package:bacassistant/routes.dart';
+import 'package:bacassistant/services/google_sign_in/auth_service.dart';
 import 'package:bacassistant/themes/bloc/theme.dart';
 import 'package:bacassistant/utils/initializer.dart';
 import 'package:dio/dio.dart';
@@ -111,6 +112,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _logout() async {
+    try {
+      await prefs.setBool('firstRun', true);
+      await AuthService().signOutWithGoogle();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('تعذر تسجيل الخروج: $error')),
+      );
+    }
+  }
+
   Future<void> _showFieldPicker() async {
     await showDialog<void>(
       context: context,
@@ -162,6 +177,11 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('حذف الملفات المحفوظة'),
                 subtitle: const Text('حذف ملفات البكالوريا المحفوظة محلياً'),
                 onTap: _confirmDeleteCachedFiles,
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout_rounded),
+                title: const Text('تسجيل الخروج'),
+                onTap: _logout,
               ),
               const SizedBox(height: 8),
             ],

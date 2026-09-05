@@ -232,7 +232,7 @@ class _HomePageState extends State<HomePage> {
                   end: Alignment.bottomLeft,
                   colors: [
                     context.colors.primary,
-                    context.colors.primaryContainer,
+                    context.colors.primary.withValues(alpha: 0.78),
                   ],
                 ),
                 boxShadow: [
@@ -240,6 +240,11 @@ class _HomePageState extends State<HomePage> {
                     color: context.colors.primary.withValues(alpha: 0.22),
                     blurRadius: 18,
                     offset: const Offset(0, 8),
+                  ),
+                  BoxShadow(
+                    color: context.colors.primary.withValues(alpha: 0.12),
+                    blurRadius: 2,
+                    spreadRadius: 1,
                   ),
                 ],
               ),
@@ -263,7 +268,7 @@ class _HomePageState extends State<HomePage> {
                   }),
                   builder: (context, snapshot) {
                     Widget buildWidget = Container(
-                      height: 238,
+                      height: 258,
                       padding: const EdgeInsets.all(24),
                       child: Center(
                         child: CircularProgressIndicator(
@@ -280,26 +285,13 @@ class _HomePageState extends State<HomePage> {
                             Row(
                               textDirection: TextDirection.rtl,
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.all(9),
-                                  decoration: BoxDecoration(
-                                    color: context.colors.onPrimary
-                                        .withValues(alpha: 0.16),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.event_available_rounded,
-                                    color: context.colors.onPrimary,
-                                    size: 24,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
-                                    'الوقت المتبقي',
+                                    'الوقت المتبقي لامتحان البكالوريا',
                                     textAlign: TextAlign.right,
-                                    style:
-                                        context.textTheme.titleLarge?.copyWith(
+                                    textDirection: TextDirection.rtl,
+                                    style: context.textTheme.headlineSmall
+                                        ?.copyWith(
                                       fontWeight: FontWeight.w700,
                                       color: context.colors.onPrimary,
                                     ),
@@ -307,17 +299,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'استمر في التقدم، كل يوم يقربك من هدفك',
-                              textAlign: TextAlign.right,
-                              textDirection: TextDirection.rtl,
-                              style: context.textTheme.bodyMedium?.copyWith(
-                                color: context.colors.onPrimary
-                                    .withValues(alpha: 0.75),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 24),
                             Row(
                               textDirection: TextDirection.rtl,
                               children: intervals.entries.map((entry) {
@@ -327,11 +309,15 @@ class _HomePageState extends State<HomePage> {
                                         horizontal: 3),
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(
-                                          vertical: 10),
+                                          vertical: 7),
                                       decoration: BoxDecoration(
-                                        color: context.colors.surface
-                                            .withValues(alpha: 0.86),
+                                        color: context.colors.onPrimary
+                                            .withValues(alpha: 0.12),
                                         borderRadius: BorderRadius.circular(14),
+                                        border: Border.all(
+                                          color: context.colors.onPrimary
+                                              .withValues(alpha: 0.16),
+                                        ),
                                       ),
                                       child: Column(
                                         children: [
@@ -341,17 +327,16 @@ class _HomePageState extends State<HomePage> {
                                                 .textTheme.headlineMedium
                                                 ?.copyWith(
                                               fontWeight: FontWeight.w900,
-                                              color: context.colors.primary,
+                                              color: context.colors.onPrimary,
                                             ),
                                           ),
-                                          const SizedBox(height: 2),
                                           Text(
                                             entry.key,
                                             style: context.textTheme.labelMedium
                                                 ?.copyWith(
-                                              color: context
-                                                  .colors.onSurfaceVariant
-                                                  .withValues(alpha: 0.75),
+                                              color: context.colors.onPrimary
+                                                  .withValues(alpha: 0.72),
+                                              fontWeight: FontWeight.w600,
                                             ),
                                           ),
                                         ],
@@ -431,50 +416,58 @@ class _HomeActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Material(
-      color: colors.surfaceContainerHighest,
+      color: colors.surfaceContainerLow,
       borderRadius: BorderRadius.circular(22),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        overlayColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.pressed)
-              ? colors.primary.withValues(alpha: 0.08)
-              : null,
+      child: Ink(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: colors.outlineVariant.withValues(alpha: 0.8),
+          ),
+          borderRadius: BorderRadius.circular(22),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Icon(
-                  Icons.arrow_outward_rounded,
-                  color: colors.onSurfaceVariant,
-                  size: 20,
+        child: InkWell(
+          onTap: onTap,
+          overlayColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.pressed)
+                ? colors.primary.withValues(alpha: 0.08)
+                : null,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Icon(
+                    Icons.arrow_outward_rounded,
+                    color: colors.onSurfaceVariant,
+                    size: 20,
+                  ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(13),
-                decoration: BoxDecoration(
-                  color: colors.primaryContainer,
-                  shape: BoxShape.circle,
+                Container(
+                  padding: const EdgeInsets.all(13),
+                  decoration: BoxDecoration(
+                    color: colors.primaryContainer,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    color: colors.onPrimaryContainer,
+                    size: 30,
+                  ),
                 ),
-                child: Icon(
-                  icon,
-                  color: colors.onPrimaryContainer,
-                  size: 30,
+                Text(
+                  title,
+                  textAlign: TextAlign.right,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
-              ),
-              Text(
-                title,
-                textAlign: TextAlign.right,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

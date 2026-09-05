@@ -55,6 +55,7 @@ dependencies:
   share_plus: ^13.3.0
   lottie: ^3.3.2
   pdfrx: ^2.5.0
+  printing: ^5.15.0
 
 
 dev_dependencies:

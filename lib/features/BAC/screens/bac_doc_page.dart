@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bacassistant/features/BAC/bloc/bac_bloc.dart';
 import 'package:bacassistant/features/BAC/bloc/bac_doc_event.dart';
 import 'package:bacassistant/features/BAC/bloc/bac_doc_state.dart';
@@ -8,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pdfrx/pdfrx.dart';
+import 'package:printing/printing.dart';
 
 class BacDocViewer extends StatelessWidget {
   final int year;
@@ -55,6 +58,38 @@ class BacOverviewPage extends StatefulWidget {
 
 class _BacOverviewPageState extends State<BacOverviewPage> {
   bool _showCorrection = false;
+  bool _isPrinting = false;
+
+  Future<void> _printDocument() async {
+    final state = context.read<BacBloc>().state;
+    if (state is! BacDocReady || _isPrinting) {
+      return;
+    }
+
+    final documentPath =
+        _showCorrection ? state.correctionPath : state.documentPath;
+    setState(() => _isPrinting = true);
+
+    try {
+      final bytes = await File(documentPath).readAsBytes();
+      await Printing.layoutPdf(
+        onLayout: (_) async => bytes,
+        name:
+            'bac-${widget.year}-${_showCorrection ? 'correction' : 'subject'}.pdf',
+      );
+    } on Exception catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('تعذرت الطباعة: $error')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isPrinting = false);
+      }
+    }
+  }
 
   Future<void> _enterFullscreen() async {
     final state = context.read<BacBloc>().state;
@@ -331,7 +366,8 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed:
+                          isReady && !_isPrinting ? _printDocument : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
@@ -342,10 +378,17 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.print_rounded),
-                          SizedBox(width: 8),
-                          Text('طباعة'),
+                        children: [
+                          if (_isPrinting)
+                            const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          else
+                            const Icon(Icons.print_rounded),
+                          const SizedBox(width: 8),
+                          Text(_isPrinting ? 'جاري الطباعة' : 'طباعة'),
                         ],
                       ),
                     ),

@@ -44,6 +44,7 @@ class _GradeCalculatorPageState extends State<GradeCalculatorPage> {
   late Subjects subjects;
   final Map<String, TextEditingController> _controllers = {};
   final Map<String, FocusNode> _focusNodes = {};
+  bool _isErrorSnackBarVisible = false;
 
   @override
   void initState() {
@@ -82,6 +83,20 @@ class _GradeCalculatorPageState extends State<GradeCalculatorPage> {
     return parsed == null || parsed < 0 || parsed > 20;
   }
 
+  void _showErrorSnackBar(String message) {
+    if (_isErrorSnackBarVisible) {
+      return;
+    }
+
+    final controller = ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+    _isErrorSnackBarVisible = true;
+    controller.closed.then((_) {
+      _isErrorSnackBarVisible = false;
+    });
+  }
+
   void _moveToNextField(String currentKey) {
     final keys = _controllers.keys.toList();
     final index = keys.indexOf(currentKey);
@@ -114,10 +129,8 @@ class _GradeCalculatorPageState extends State<GradeCalculatorPage> {
 
       final points = double.tryParse(value);
       if (points == null || points < 0 || points > 20) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('يرجى إدخال نقاط صحيحة لكل مادة (${entry.key})'),
-          ),
+        _showErrorSnackBar(
+          'يرجى إدخال نقاط صحيحة لكل مادة (${entry.key})',
         );
         return;
       }
@@ -129,8 +142,8 @@ class _GradeCalculatorPageState extends State<GradeCalculatorPage> {
     }
 
     if (gpaModel.scoreMap.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('يرجى إدخال نقاط على الأقل لمادة واحدة')),
+      _showErrorSnackBar(
+        'يرجى إدخال نقاط على الأقل لمادة واحدة',
       );
       return;
     }

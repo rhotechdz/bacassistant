@@ -62,6 +62,16 @@ class QuizSubjectPage extends StatelessWidget {
                 subtitle: 'الوحدات والأسئلة المتاحة حالياً',
                 icon: Icons.science_outlined,
               ),
+              _QuizSubjectEntry(
+                subject: 'التاريخ',
+                subtitle: 'الوحدات والأسئلة المتاحة حالياً',
+                icon: Icons.history_edu_outlined,
+              ),
+              _QuizSubjectEntry(
+                subject: 'الجغرافيا',
+                subtitle: 'الوحدات والأسئلة المتاحة حالياً',
+                icon: Icons.public_outlined,
+              ),
             ].map(
               (entry) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),

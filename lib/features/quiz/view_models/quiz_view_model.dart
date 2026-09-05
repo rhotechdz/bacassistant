@@ -21,6 +21,8 @@ class QuizViewModel extends ChangeNotifier {
       _error = null;
       _data = subject == 'العلوم الفيزيائية'
           ? await _repository.loadPhysicsData()
+          : subject == 'التاريخ' || subject == 'الجغرافيا'
+              ? await _repository.loadHistoryGeographyData(subject: subject)
           : await _repository.loadMathData(field: field);
       _selectedUnits = _data!.units.map((unit) => unit.name).toSet();
       _questionCount = _questionCount.clamp(15, 30);

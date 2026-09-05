@@ -18,6 +18,7 @@ class _QuizPageState extends State<QuizPage> {
   late final List<int?> _answers;
   Timer? _timer;
   var _currentIndex = 0;
+  var _isExitDialogOpen = false;
   late int _remainingSeconds;
   late final DateTime _startedAt;
 
@@ -71,6 +72,61 @@ class _QuizPageState extends State<QuizPage> {
     );
   }
 
+  Future<void> _confirmExit() async {
+    if (_isExitDialogOpen || !mounted) return;
+    _isExitDialogOpen = true;
+    final shouldExit = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final colorScheme = Theme.of(context).colorScheme;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+          contentPadding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+          actionsPadding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+          title: const Text(
+            'مغادرة الاختبار؟',
+            textAlign: TextAlign.center,
+          ),
+          content: Text(
+            'سيتم فقدان تقدمك الحالي ولن يتم احتساب نتيجة هذا الاختبار.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  height: 1.5,
+                ),
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('متابعة'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text('مغادرة'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+    _isExitDialogOpen = false;
+    if (shouldExit == true && mounted) {
+      _timer?.cancel();
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -80,33 +136,75 @@ class _QuizPageState extends State<QuizPage> {
   @override
   Widget build(BuildContext context) {
     final selectedAnswer = _answers[_currentIndex];
-    return Scaffold(
+    return PopScope<void>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _confirmExit();
+      },
+      child: Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(
-          '${_currentIndex + 1} / ${widget.questions.length}',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        title: SizedBox(
+          width: 32,
+          height: 32,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CircularProgressIndicator(
+                value: _remainingSeconds /
+                    widget.settings.timePerQuestion.inSeconds,
+                strokeWidth: 3,
+              ),
+              Text(
+                '$_remainingSeconds',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.close),
-            onPressed: () => Navigator.of(context).pop(),
+            color: Theme.of(context).colorScheme.primary,
+            onPressed: _confirmExit,
           ),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              '${_currentIndex + 1} / ${widget.questions.length}',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+            ),
+          ),
+          const SizedBox(height: 5),
           LinearProgressIndicator(
             value: (_currentIndex + 1) / widget.questions.length,
           ),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Chip(label: Text(_question.unit)),
-              Text('$_remainingSeconds ث'),
-            ],
+          Align(
+            alignment: Alignment.centerRight,
+            child: Chip(
+              label: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.sizeOf(context).width - 80,
+                ),
+                child: Text(
+                  _question.unit,
+                  softWrap: true,
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 20),
           Text(_question.text,
@@ -174,6 +272,7 @@ class _QuizPageState extends State<QuizPage> {
                 : 'السؤال التالي'),
           ),
         ],
+      ),
       ),
     );
   }

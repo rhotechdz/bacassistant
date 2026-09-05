@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bacassistant/features/quiz/models/quiz_models.dart';
+import 'package:bacassistant/services/curriculum_cache.dart';
 import 'package:flutter/services.dart';
 
 class QuizRepository {
@@ -8,9 +9,22 @@ class QuizRepository {
 
   final AssetBundle? _bundle;
 
+  Future<String> _loadCurriculumFile(String filename) async {
+    if (_bundle != null) {
+      return _bundle.loadString('assets/data/$filename');
+    }
+
+    final cached = CurriculumCache().readCachedFile(filename);
+    if (cached == null) {
+      throw StateError(
+        'Curriculum file $filename is not available in the local cache.',
+      );
+    }
+    return cached;
+  }
+
   Future<QuizSubjectData> loadMathData({required String field}) async {
-    final jsonString = await (_bundle ?? rootBundle)
-        .loadString('assets/data/curriculum_math.json');
+    final jsonString = await _loadCurriculumFile('curriculum_math.json');
     final decoded = jsonDecode(jsonString);
     if (decoded is! Map<String, dynamic>) {
       throw const FormatException('The math curriculum must be a JSON object.');
@@ -45,16 +59,19 @@ class QuizRepository {
         .toList(growable: false);
     final lessonNames = lessons.map((lesson) => lesson.name).toSet();
     final grouping = _unitGrouping[field] ?? _fallbackGrouping(lessons);
-    final units = grouping.entries.map((entry) {
-      final includedLessons =
-          entry.value.where(lessonNames.contains).toList(growable: false);
-      return QuizUnit(
-        name: entry.key,
-        order: grouping.keys.toList().indexOf(entry.key) + 1,
-        weight: 1,
-        lessons: includedLessons,
-      );
-    }).where((unit) => unit.lessons.isNotEmpty).toList(growable: false);
+    final units = grouping.entries
+        .map((entry) {
+          final includedLessons =
+              entry.value.where(lessonNames.contains).toList(growable: false);
+          return QuizUnit(
+            name: entry.key,
+            order: grouping.keys.toList().indexOf(entry.key) + 1,
+            weight: 1,
+            lessons: includedLessons,
+          );
+        })
+        .where((unit) => unit.lessons.isNotEmpty)
+        .toList(growable: false);
     final lessonToUnit = {
       for (final unit in units)
         for (final lesson in unit.lessons) lesson: unit.name,
@@ -62,26 +79,26 @@ class QuizRepository {
 
     return QuizSubjectData(
       subject: 'الرياضيات',
-      field: fieldData is Map<String, dynamic> ? field : _firstFieldName(subjectData),
+      field: fieldData is Map<String, dynamic>
+          ? field
+          : _firstFieldName(subjectData),
       units: units,
-      questions: rawQuestions
-          .map((question) {
-            final json = Map<String, dynamic>.from(question as Map);
-            return QuizQuestion.fromJson(
-              json,
-              unit: lessonToUnit[json['lesson'].toString()],
-            );
-          })
-          .toList(growable: false),
+      questions: rawQuestions.map((question) {
+        final json = Map<String, dynamic>.from(question as Map);
+        return QuizQuestion.fromJson(
+          json,
+          unit: lessonToUnit[json['lesson'].toString()],
+        );
+      }).toList(growable: false),
     );
   }
 
   Future<QuizSubjectData> loadPhysicsData() async {
-    final jsonString = await (_bundle ?? rootBundle)
-        .loadString('assets/data/curriculum_physics.json');
+    final jsonString = await _loadCurriculumFile('curriculum_physics.json');
     final decoded = jsonDecode(jsonString);
     if (decoded is! Map<String, dynamic>) {
-      throw const FormatException('The physics curriculum must be a JSON object.');
+      throw const FormatException(
+          'The physics curriculum must be a JSON object.');
     }
 
     final subjectData = decoded['العلوم الفيزيائية'];
@@ -128,8 +145,8 @@ class QuizRepository {
   Future<QuizSubjectData> loadHistoryGeographyData({
     required String subject,
   }) async {
-    final jsonString = await (_bundle ?? rootBundle)
-        .loadString('assets/data/curriculum_history_geography.json');
+    final jsonString =
+        await _loadCurriculumFile('curriculum_history_geography.json');
     final decoded = jsonDecode(jsonString);
     if (decoded is! Map<String, dynamic>) {
       throw const FormatException(
@@ -245,7 +262,11 @@ class QuizRepository {
       'الوحدة الثالثة': ['الاحتمالات', 'الهندسة في الفضاء'],
     },
     'شعبة تسيير واقتصاد': {
-      'الوحدة الأولى': ['الدوال العددية', 'الدالة الأسية', 'الدالة اللوغاريتمية'],
+      'الوحدة الأولى': [
+        'الدوال العددية',
+        'الدالة الأسية',
+        'الدالة اللوغاريتمية'
+      ],
       'الوحدة الثانية': ['المتتاليات العددية', 'الاحتمالات', 'الإحصاء'],
       'الوحدة الثالثة': ['تطبيقات اقتصادية'],
     },

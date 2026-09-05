@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:bacassistant/services/admob/admob_service.dart';
+import 'package:bacassistant/services/curriculum_cache.dart';
 import 'package:bacassistant/firebase_options.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -63,8 +64,9 @@ class Initializer {
     // Check if first run
     isFirstRun();
 
-    // Load JSON assets
+    // Keep the legacy curriculum screen available while remote files preload.
     loadFiles();
+    await CurriculumCache().loadAll();
 
     // Initialize appStorage path
     appStorage = (await getApplicationDocumentsDirectory()).path;

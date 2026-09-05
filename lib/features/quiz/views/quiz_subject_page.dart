@@ -1,5 +1,7 @@
 import 'package:bacassistant/features/quiz/views/quiz_setup_page.dart';
+import 'package:bacassistant/screens/introduction_flow/press_animation_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class QuizSubjectPage extends StatelessWidget {
   const QuizSubjectPage({super.key});
@@ -7,6 +9,28 @@ class QuizSubjectPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    const subjects = [
+      _QuizSubjectEntry(
+        subject: 'الرياضيات',
+        subtitle: 'الوحدات والأسئلة المتاحة حالياً',
+        icon: Icons.functions_rounded,
+      ),
+      _QuizSubjectEntry(
+        subject: 'العلوم الفيزيائية',
+        subtitle: 'الوحدات والأسئلة المتاحة حالياً',
+        icon: Icons.science_outlined,
+      ),
+      _QuizSubjectEntry(
+        subject: 'التاريخ',
+        subtitle: 'الوحدات والأسئلة المتاحة حالياً',
+        icon: Icons.history_edu_outlined,
+      ),
+      _QuizSubjectEntry(
+        subject: 'الجغرافيا',
+        subtitle: 'الوحدات والأسئلة المتاحة حالياً',
+        icon: Icons.public_outlined,
+      ),
+    ];
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
@@ -51,40 +75,32 @@ class QuizSubjectPage extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 20),
-            ...const [
-              _QuizSubjectEntry(
-                subject: 'الرياضيات',
-                subtitle: 'الوحدات والأسئلة المتاحة حالياً',
-                icon: Icons.functions_rounded,
-              ),
-              _QuizSubjectEntry(
-                subject: 'العلوم الفيزيائية',
-                subtitle: 'الوحدات والأسئلة المتاحة حالياً',
-                icon: Icons.science_outlined,
-              ),
-              _QuizSubjectEntry(
-                subject: 'التاريخ',
-                subtitle: 'الوحدات والأسئلة المتاحة حالياً',
-                icon: Icons.history_edu_outlined,
-              ),
-              _QuizSubjectEntry(
-                subject: 'الجغرافيا',
-                subtitle: 'الوحدات والأسئلة المتاحة حالياً',
-                icon: Icons.public_outlined,
-              ),
-            ].map(
-              (entry) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => QuizSetupPage(subject: entry.subject),
+            ...subjects.asMap().entries.map(
+              (item) {
+                final entry = item.value;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Tappable(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => QuizSetupPage(subject: entry.subject),
+                      ),
                     ),
+                    child: _buildSubjectEntry(context, colorScheme, entry),
+                  ).animate(
+                    delay: Duration(milliseconds: 25 * item.key),
+                    effects: const [
+                      FadeEffect(duration: Duration(milliseconds: 250)),
+                      SlideEffect(
+                        begin: Offset(0, 0.08),
+                        end: Offset.zero,
+                        duration: Duration(milliseconds: 250),
+                      ),
+                    ],
                   ),
-                  child: _buildSubjectEntry(context, colorScheme, entry),
-                ),
-              ),
+                );
+              },
             ),
           ],
         ),

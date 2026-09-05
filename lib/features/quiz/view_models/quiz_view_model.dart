@@ -9,7 +9,7 @@ class QuizViewModel extends ChangeNotifier {
   QuizSubjectData? _data;
   Object? _error;
   Set<String> _selectedUnits = {};
-  int _questionCount = 15;
+  int _questionCount = 10;
 
   QuizSubjectData? get data => _data;
   Object? get error => _error;
@@ -25,7 +25,7 @@ class QuizViewModel extends ChangeNotifier {
               ? await _repository.loadHistoryGeographyData(subject: subject)
           : await _repository.loadMathData(field: field);
       _selectedUnits = _data!.units.map((unit) => unit.name).toSet();
-      _questionCount = _questionCount.clamp(15, 30);
+      _questionCount = _questionCount.clamp(10, 30);
     } catch (error) {
       _error = error;
     }
@@ -39,7 +39,7 @@ class QuizViewModel extends ChangeNotifier {
   }
 
   void setQuestionCount(double value) {
-    _questionCount = value.round().clamp(15, 30);
+    _questionCount = value.round().clamp(10, 30);
     notifyListeners();
   }
 

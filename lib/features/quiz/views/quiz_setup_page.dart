@@ -36,7 +36,19 @@ class _QuizSetupPageState extends State<QuizSetupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('إعداد الاختبار')),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text(
+          'إعداد الاختبار',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.of(context).maybePop(),
+            icon: const Icon(Icons.arrow_forward_rounded, size: 28),
+          ),
+        ],
+      ),
       body: ListenableBuilder(
         listenable: _viewModel,
         builder: (context, _) {
@@ -158,9 +170,9 @@ class _QuizSetupPageState extends State<QuizSetupPage> {
                   fontWeight: FontWeight.bold,
                 )),
         Slider(
-          min: 15,
+          min: 10,
           max: 30,
-          divisions: 15,
+          divisions: 2,
           value: _viewModel.questionCount.toDouble(),
           label: '${_viewModel.questionCount}',
           onChanged: _viewModel.setQuestionCount,

@@ -82,11 +82,17 @@ class _QuizPageState extends State<QuizPage> {
     final selectedAnswer = _answers[_currentIndex];
     return Scaffold(
       appBar: AppBar(
-        title: Text('${_currentIndex + 1} / ${widget.questions.length}'),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.of(context).pop(),
+        automaticallyImplyLeading: false,
+        title: Text(
+          '${_currentIndex + 1} / ${widget.questions.length}',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),

@@ -81,7 +81,7 @@ class QuizSettings {
   final int questionCount;
 
   Duration get timePerQuestion {
-    final normalized = ((questionCount - 15) / 15).clamp(0.0, 1.0);
+    final normalized = ((questionCount - 10) / 20).clamp(0.0, 1.0);
     final seconds = 45 - (25 * normalized).round();
     return Duration(seconds: seconds);
   }
@@ -117,5 +117,26 @@ List<QuizQuestion> selectQuestions(
       .where((question) => selectedUnits.contains(question.unit))
       .toList();
   pool.shuffle(Random());
-  return pool.take(min(requestedCount, pool.length)).toList(growable: false);
+  return pool
+      .take(min(requestedCount, pool.length))
+      .map(randomizeQuestionOptions)
+      .toList(growable: false);
+}
+
+QuizQuestion randomizeQuestionOptions(QuizQuestion question, [Random? random]) {
+  final shuffledOptions = question.options.asMap().entries.toList();
+  shuffledOptions.shuffle(random ?? Random());
+  final correctIndex =
+      shuffledOptions.indexWhere((entry) => entry.key == question.correctIndex);
+
+  return QuizQuestion(
+    id: question.id,
+    unit: question.unit,
+    text: question.text,
+    options: shuffledOptions
+        .map((entry) => entry.value)
+        .toList(growable: false),
+    correctIndex: correctIndex,
+    explanation: question.explanation,
+  );
 }

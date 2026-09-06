@@ -1,7 +1,6 @@
-import 'dart:ui';
-
 import 'package:bacassistant/features/grade_calculator/models/score.dart';
 import 'package:bacassistant/features/grade_calculator/models/subjects.dart';
+import 'package:bacassistant/widgets/wrap_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -248,340 +247,258 @@ class _GradeCalculatorPageState extends State<GradeCalculatorPage> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      body: SafeArea(
-        child: Stack(
+      body: WrapAppBar(
+        title: 'حساب المعدل',
+        child: Column(
           children: [
-            Column(
-              children: [
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 78, 16, 16),
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    children: [
-                      // Mandatory subjects card
-                      Container(
-                        decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: colorScheme.outlineVariant,
-                          ),
-                        ),
-                        child: Column(
-                          children: subjectEntries.asMap().entries.map((item) {
-                            final entry = item.value;
-                            final controller = _controllers[entry.key]!;
-                            final focusNode = _focusNodes[entry.key]!;
-                            final icon = subjectIcons[entry.key] ??
-                                Icons.school_outlined;
-                            final isOptional =
-                                subjects.optional.containsKey(entry.key);
-                            final isEnabled = !isOptional ||
-                                subjects.unified.containsKey(entry.key);
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 78, 16, 16),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                children: [
+                  // Mandatory subjects card
+                  Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: colorScheme.outlineVariant,
+                      ),
+                    ),
+                    child: Column(
+                      children: subjectEntries.asMap().entries.map((item) {
+                        final entry = item.value;
+                        final controller = _controllers[entry.key]!;
+                        final focusNode = _focusNodes[entry.key]!;
+                        final icon =
+                            subjectIcons[entry.key] ?? Icons.school_outlined;
+                        final isOptional =
+                            subjects.optional.containsKey(entry.key);
+                        final isEnabled = !isOptional ||
+                            subjects.unified.containsKey(entry.key);
 
-                            return RepaintBoundary(
-                              key: ValueKey(entry.key),
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: isOptional
-                                      ? () => _toggle(entry.key)
-                                      : null,
-                                  child: Column(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 12,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            // Subject info with icon
-                                            Expanded(
-                                              child: Row(
-                                                children: [
-                                                  // Subject icon in circular badge
-                                                  Container(
-                                                    width: 40,
-                                                    height: 40,
-                                                    decoration: BoxDecoration(
-                                                      color: isEnabled
-                                                          ? colorScheme
-                                                              .primaryContainer
-                                                          : colorScheme
-                                                              .surfaceContainerHighest,
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    child: Icon(
-                                                      icon,
-                                                      color: isEnabled
-                                                          ? colorScheme
-                                                              .onPrimaryContainer
-                                                          : colorScheme
-                                                              .onSurfaceVariant,
-                                                      size: 20,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 12),
-                                                  // Subject name and factor
-                                                  Expanded(
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
+                        return RepaintBoundary(
+                          key: ValueKey(entry.key),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap:
+                                  isOptional ? () => _toggle(entry.key) : null,
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        // Subject info with icon
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              // Subject icon in circular badge
+                                              Container(
+                                                width: 40,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                  color: isEnabled
+                                                      ? colorScheme
+                                                          .primaryContainer
+                                                      : colorScheme
+                                                          .surfaceContainerHighest,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Icon(
+                                                  icon,
+                                                  color: isEnabled
+                                                      ? colorScheme
+                                                          .onPrimaryContainer
+                                                      : colorScheme
+                                                          .onSurfaceVariant,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              // Subject name and factor
+                                              Expanded(
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
                                                       children: [
-                                                        Row(
-                                                          children: [
-                                                            Flexible(
-                                                              child: Text(
-                                                                entry.key,
-                                                                style: textTheme
-                                                                    .bodyMedium
-                                                                    ?.copyWith(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: isEnabled
-                                                                      ? colorScheme
-                                                                          .onSurface
-                                                                      : colorScheme
-                                                                          .onSurfaceVariant,
-                                                                ),
-                                                                maxLines: 1,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                              ),
-                                                            ),
-                                                            if (isOptional)
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .only(
-                                                                        left:
-                                                                            6),
-                                                                child: Icon(
-                                                                  Icons
-                                                                      .touch_app_outlined,
-                                                                  size: 16,
-                                                                  color: colorScheme
+                                                        Flexible(
+                                                          child: Text(
+                                                            entry.key,
+                                                            style: textTheme
+                                                                .bodyMedium
+                                                                ?.copyWith(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: isEnabled
+                                                                  ? colorScheme
+                                                                      .onSurface
+                                                                  : colorScheme
                                                                       .onSurfaceVariant,
-                                                                ),
-                                                              ),
-                                                          ],
-                                                        ),
-                                                        Text(
-                                                          'المعامل: ${entry.value}',
-                                                          style: textTheme
-                                                              .labelSmall
-                                                              ?.copyWith(
-                                                            color: colorScheme
-                                                                .onSurfaceVariant,
+                                                            ),
+                                                            maxLines: 1,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
                                                           ),
                                                         ),
+                                                        if (isOptional)
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    left: 6),
+                                                            child: Icon(
+                                                              Icons
+                                                                  .touch_app_outlined,
+                                                              size: 16,
+                                                              color: colorScheme
+                                                                  .onSurfaceVariant,
+                                                            ),
+                                                          ),
                                                       ],
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(width: 16),
-                                            // Input field
-                                            SizedBox(
-                                              width: 96,
-                                              child: ValueListenableBuilder<
-                                                  TextEditingValue>(
-                                                valueListenable: controller,
-                                                builder:
-                                                    (context, value, child) =>
-                                                        TextField(
-                                                  enabled: isEnabled,
-                                                  focusNode: focusNode,
-                                                  controller: controller,
-                                                  keyboardType:
-                                                      const TextInputType
-                                                          .numberWithOptions(
-                                                    decimal: true,
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                  textDirection:
-                                                      TextDirection.ltr,
-                                                  textInputAction: item.key ==
-                                                          subjectEntries
-                                                                  .length -
-                                                              1
-                                                      ? TextInputAction.done
-                                                      : TextInputAction.next,
-                                                  onSubmitted: (_) =>
-                                                      _moveToNextField(
-                                                          entry.key),
-                                                  onChanged: (value) {
-                                                    if (_isGradeValueInvalid(
-                                                        value)) {
-                                                      focusNode.requestFocus();
-                                                    }
-                                                  },
-                                                  inputFormatters: [
-                                                    FilteringTextInputFormatter
-                                                        .allow(
-                                                      RegExp(
-                                                          r'^\d*\.?\d{0,2}$'),
+                                                    Text(
+                                                      'المعامل: ${entry.value}',
+                                                      style: textTheme
+                                                          .labelSmall
+                                                          ?.copyWith(
+                                                        color: colorScheme
+                                                            .onSurfaceVariant,
+                                                      ),
                                                     ),
                                                   ],
-                                                  decoration: InputDecoration(
-                                                    hintText: '0 - 20',
-                                                    contentPadding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 10,
-                                                    ),
-                                                    border: OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            colorScheme.outline,
-                                                      ),
-                                                    ),
-                                                    enabledBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            _isGradeValueInvalid(
-                                                                    controller
-                                                                        .text)
-                                                                ? colorScheme
-                                                                    .error
-                                                                : colorScheme
-                                                                    .outline,
-                                                      ),
-                                                    ),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            _isGradeValueInvalid(
-                                                                    controller
-                                                                        .text)
-                                                                ? colorScheme
-                                                                    .error
-                                                                : colorScheme
-                                                                    .primary,
-                                                        width: 2,
-                                                      ),
-                                                    ),
-                                                    errorBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            colorScheme.error,
-                                                      ),
-                                                    ),
-                                                    focusedErrorBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            colorScheme.error,
-                                                        width: 2,
-                                                      ),
-                                                    ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        // Input field
+                                        SizedBox(
+                                          width: 96,
+                                          child: ValueListenableBuilder<
+                                              TextEditingValue>(
+                                            valueListenable: controller,
+                                            builder: (context, value, child) =>
+                                                TextField(
+                                              enabled: isEnabled,
+                                              focusNode: focusNode,
+                                              controller: controller,
+                                              keyboardType: const TextInputType
+                                                  .numberWithOptions(
+                                                decimal: true,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                              textDirection: TextDirection.ltr,
+                                              textInputAction: item.key ==
+                                                      subjectEntries.length - 1
+                                                  ? TextInputAction.done
+                                                  : TextInputAction.next,
+                                              onSubmitted: (_) =>
+                                                  _moveToNextField(entry.key),
+                                              onChanged: (value) {
+                                                if (_isGradeValueInvalid(
+                                                    value)) {
+                                                  focusNode.requestFocus();
+                                                }
+                                              },
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .allow(
+                                                  RegExp(r'^\d*\.?\d{0,2}$'),
+                                                ),
+                                              ],
+                                              decoration: InputDecoration(
+                                                hintText: '0 - 20',
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                  vertical: 10,
+                                                ),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  borderSide: BorderSide(
+                                                    color: colorScheme.outline,
+                                                  ),
+                                                ),
+                                                enabledBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  borderSide: BorderSide(
+                                                    color: _isGradeValueInvalid(
+                                                            controller.text)
+                                                        ? colorScheme.error
+                                                        : colorScheme.outline,
+                                                  ),
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  borderSide: BorderSide(
+                                                    color: _isGradeValueInvalid(
+                                                            controller.text)
+                                                        ? colorScheme.error
+                                                        : colorScheme.primary,
+                                                    width: 2,
+                                                  ),
+                                                ),
+                                                errorBorder: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  borderSide: BorderSide(
+                                                    color: colorScheme.error,
+                                                  ),
+                                                ),
+                                                focusedErrorBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  borderSide: BorderSide(
+                                                    color: colorScheme.error,
+                                                    width: 2,
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          ],
+                                          ),
                                         ),
-                                      ),
-                                      // Divider between rows
-                                      if (item.key < subjectEntries.length - 1)
-                                        Divider(
-                                          height: 1,
-                                          color: colorScheme.outlineVariant
-                                              .withValues(alpha: 0.3),
-                                          indent: 16,
-                                          endIndent: 16,
-                                        ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
+                                  // Divider between rows
+                                  if (item.key < subjectEntries.length - 1)
+                                    Divider(
+                                      height: 1,
+                                      color: colorScheme.outlineVariant
+                                          .withValues(alpha: 0.3),
+                                      indent: 16,
+                                      endIndent: 16,
+                                    ),
+                                ],
                               ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Positioned(
-              top: 8,
-              left: 16,
-              right: 16,
-              child: SizedBox(
-                height: 56,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surface.withValues(alpha: 0.78),
-                        border: Border.all(color: colorScheme.outlineVariant),
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Text(
-                        'حساب المعدل',
-                        style: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        onPressed: () => Navigator.of(context).maybePop(),
-                        icon: const Icon(
-                          Icons.arrow_back_rounded,
-                          textDirection: TextDirection.ltr,
-                        ),
-                        color: colorScheme.onSurface,
-                        style: IconButton.styleFrom(
-                          backgroundColor:
-                              colorScheme.surface.withValues(alpha: 0.78),
-                          side: BorderSide(color: colorScheme.outlineVariant),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      }).toList(),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],

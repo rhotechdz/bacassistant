@@ -5,6 +5,7 @@ import 'package:bacassistant/routes.dart';
 import 'package:bacassistant/screens/introduction_flow/press_animation_button.dart';
 import 'package:bacassistant/utils/constants.dart';
 import 'package:bacassistant/utils/initializer.dart';
+import 'package:bacassistant/widgets/wrap_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -31,43 +32,16 @@ class _BacPageState extends State<BacPage> {
         prefs.getString('chosenField') ?? fieldDict.keys.first;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Text(
-          'مواضيع البكالوريا',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: colorScheme.onSurface,
-              ),
-        ),
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).maybePop(),
-          icon: const Icon(Icons.arrow_forward_rounded, size: 28),
-          color: colorScheme.onSurface,
-        ),
-      ),
-      body: SafeArea(
+      body: WrapAppBar(
+        title: 'مواضيع البكالوريا',
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                'اختر دورة البكالوريا للإطلاع على المواضيع والحلول المفصلة.',
-                textAlign: TextAlign.right,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      height: 1.6,
-                    ),
-              ),
-              const SizedBox(height: 18),
               Expanded(
                 child: ListView.separated(
+                  padding: const EdgeInsets.only(top: 78),
                   itemCount: years.length,
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: 10),

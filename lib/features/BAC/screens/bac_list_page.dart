@@ -178,53 +178,13 @@ class _BacSubjectSelectionPageState extends State<BacSubjectSelectionPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        titleSpacing: 0,
-        title: Align(
-          alignment: Alignment.centerRight,
-          child: Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Text(
-              'اختر المادة',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.onSurface,
-                  ),
-            ),
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => Navigator.of(context).maybePop(),
-            icon: const Icon(Icons.arrow_forward_rounded, size: 28),
-            color: colorScheme.onSurface,
-          ),
-        ],
-      ),
-      body: SafeArea(
+      body: WrapAppBar(
+        title: 'بكالوريا ${widget.year}',
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          padding: const EdgeInsets.fromLTRB(16, 78, 16, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  'اختر المادة للاطلاع على المواضيع والحلول',
-                  textAlign: TextAlign.right,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                        height: 1.6,
-                      ),
-                ),
-              ),
-              const SizedBox(height: 18),
               Expanded(
                 child: FutureBuilder<List<String>>(
                   future: _subjectsFuture,

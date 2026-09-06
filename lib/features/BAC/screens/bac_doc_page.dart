@@ -5,6 +5,7 @@ import 'package:bacassistant/features/BAC/bloc/bac_doc_event.dart';
 import 'package:bacassistant/features/BAC/bloc/bac_doc_state.dart';
 import 'package:bacassistant/features/BAC/models/bac_document.dart';
 import 'package:bacassistant/utils/initializer.dart';
+import 'package:bacassistant/widgets/wrap_app_bar.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -141,287 +142,263 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
     final selectedPath = state is BacDocReady
         ? (_showCorrection ? state.correctionPath : state.documentPath)
         : null;
-    final subject = prefs.getString('chosenSubject') ?? 'علوم الطبيعة والحياة';
-
     return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        titleSpacing: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).maybePop(),
-          icon: const Icon(Icons.arrow_back_rounded, size: 28),
-          color: colorScheme.onSurface,
-        ),
-        title: Text(
-          'بكالوريا ${widget.year} - $subject',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: colorScheme.onSurface,
-              ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.more_vert_rounded, size: 24),
-            color: colorScheme.onSurface,
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Container(
-                height: 52,
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: colorScheme.outlineVariant,
+      body: WrapAppBar(
+        title: 'بكالوريا ${widget.year}',
+        child: Padding(
+          padding: const EdgeInsets.only(top: 60),
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: Container(
+                  height: 52,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: colorScheme.outlineVariant,
+                    ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: InkWell(
-                        onTap: () => setState(() => _showCorrection = false),
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: !_showCorrection
-                                ? colorScheme.primary
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'الموضوع',
-                            style: TextStyle(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => setState(() => _showCorrection = false),
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            decoration: BoxDecoration(
                               color: !_showCorrection
-                                  ? colorScheme.onPrimary
-                                  : colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w700,
+                                  ? colorScheme.primary
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'الموضوع',
+                              style: TextStyle(
+                                color: !_showCorrection
+                                    ? colorScheme.onPrimary
+                                    : colorScheme.onSurfaceVariant,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: InkWell(
-                        onTap: () => setState(() => _showCorrection = true),
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: _showCorrection
-                                ? colorScheme.primary
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'الحل',
-                            style: TextStyle(
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => setState(() => _showCorrection = true),
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            decoration: BoxDecoration(
                               color: _showCorrection
-                                  ? colorScheme.onPrimary
-                                  : colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w700,
+                                  ? colorScheme.primary
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'الحل',
+                              style: TextStyle(
+                                color: _showCorrection
+                                    ? colorScheme.onPrimary
+                                    : colorScheme.onSurfaceVariant,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(18),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerLow,
+                        border: Border.all(
+                          color: colorScheme.outlineVariant,
+                        ),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: SizedBox.expand(
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 280),
+                          reverseDuration: const Duration(milliseconds: 220),
+                          switchInCurve: Curves.easeOutCubic,
+                          switchOutCurve: Curves.easeInCubic,
+                          transitionBuilder: (child, animation) =>
+                              SharedAxisTransition(
+                            animation: animation,
+                            secondaryAnimation: ReverseAnimation(animation),
+                            transitionType: SharedAxisTransitionType.horizontal,
+                            child: child,
+                          ),
+                          child: selectedPath == null
+                              ? Center(
+                                  key: ValueKey(state),
+                                  child: state is BacDocError && state.isOffline
+                                      ? _OfflineDownloadPrompt(
+                                          message: state.message,
+                                          colorScheme: colorScheme,
+                                        )
+                                      : state is BacDocLoading
+                                          ? Container(
+                                              margin: const EdgeInsets.all(24),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 24,
+                                                vertical: 28,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: colorScheme
+                                                    .surfaceContainer,
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                border: Border.all(
+                                                  color: colorScheme
+                                                      .outlineVariant,
+                                                ),
+                                              ),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  CircularProgressIndicator(
+                                                    value: state.progress,
+                                                    strokeWidth: 4,
+                                                    backgroundColor: colorScheme
+                                                        .surfaceContainerHighest,
+                                                    color: colorScheme.primary,
+                                                  ),
+                                                  const SizedBox(height: 20),
+                                                  Text(
+                                                    state.status ==
+                                                            'Downloading subject...'
+                                                        ? 'جاري تحميل الموضوع'
+                                                        : 'جاري تحميل الحل',
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleMedium
+                                                        ?.copyWith(
+                                                          color: colorScheme
+                                                              .onSurface,
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                        ),
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    '${(state.progress * 100).round()}%',
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodyMedium
+                                                        ?.copyWith(
+                                                          color: colorScheme
+                                                              .onSurfaceVariant,
+                                                        ),
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                          : Text(
+                                              state is BacDocError
+                                                  ? state.message
+                                                  : 'Initializing...',
+                                            ),
+                                )
+                              : PdfViewer.file(
+                                  key: ValueKey(selectedPath),
+                                  selectedPath,
+                                  params: const PdfViewerParams(
+                                    scrollPhysics: BouncingScrollPhysics(),
+                                    sizeDelegateProvider:
+                                        PdfViewerSizeDelegateProviderLegacy(
+                                      minScale: 0.75,
+                                      maxScale: 2.5,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed:
+                            isReady && !_isPrinting ? _printDocument : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (_isPrinting)
+                              const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            else
+                              const Icon(Icons.print_rounded),
+                            const SizedBox(width: 8),
+                            Text(_isPrinting ? 'جاري الطباعة' : 'طباعة'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: isReady ? _enterFullscreen : null,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: colorScheme.primary,
+                          side: BorderSide(
+                            color: colorScheme.primary,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.open_in_new_rounded),
+                            SizedBox(width: 8),
+                            Text('فتح'),
+                          ],
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerLow,
-                      border: Border.all(
-                        color: colorScheme.outlineVariant,
-                      ),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: SizedBox.expand(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 280),
-                        reverseDuration: const Duration(milliseconds: 220),
-                        switchInCurve: Curves.easeOutCubic,
-                        switchOutCurve: Curves.easeInCubic,
-                        transitionBuilder: (child, animation) =>
-                            SharedAxisTransition(
-                          animation: animation,
-                          secondaryAnimation: ReverseAnimation(animation),
-                          transitionType: SharedAxisTransitionType.horizontal,
-                          child: child,
-                        ),
-                        child: selectedPath == null
-                            ? Center(
-                                key: ValueKey(state),
-                                child: state is BacDocError && state.isOffline
-                                    ? _OfflineDownloadPrompt(
-                                        message: state.message,
-                                        colorScheme: colorScheme,
-                                      )
-                                    : state is BacDocLoading
-                                        ? Container(
-                                            margin: const EdgeInsets.all(24),
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 24,
-                                              vertical: 28,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  colorScheme.surfaceContainer,
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              border: Border.all(
-                                                color:
-                                                    colorScheme.outlineVariant,
-                                              ),
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                CircularProgressIndicator(
-                                                  value: state.progress,
-                                                  strokeWidth: 4,
-                                                  backgroundColor: colorScheme
-                                                      .surfaceContainerHighest,
-                                                  color: colorScheme.primary,
-                                                ),
-                                                const SizedBox(height: 20),
-                                                Text(
-                                                  state.status ==
-                                                          'Downloading subject...'
-                                                      ? 'جاري تحميل الموضوع'
-                                                      : 'جاري تحميل الحل',
-                                                  textAlign: TextAlign.center,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .titleMedium
-                                                      ?.copyWith(
-                                                        color: colorScheme
-                                                            .onSurface,
-                                                        fontWeight:
-                                                            FontWeight.w700,
-                                                      ),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Text(
-                                                  '${(state.progress * 100).round()}%',
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyMedium
-                                                      ?.copyWith(
-                                                        color: colorScheme
-                                                            .onSurfaceVariant,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        : Text(
-                                            state is BacDocError
-                                                ? state.message
-                                                : 'Initializing...',
-                                          ),
-                              )
-                            : PdfViewer.file(
-                                key: ValueKey(selectedPath),
-                                selectedPath,
-                                params: const PdfViewerParams(
-                                  scrollPhysics: BouncingScrollPhysics(),
-                                  sizeDelegateProvider:
-                                      PdfViewerSizeDelegateProviderLegacy(
-                                    minScale: 0.75,
-                                    maxScale: 2.5,
-                                  ),
-                                ),
-                              ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed:
-                          isReady && !_isPrinting ? _printDocument : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (_isPrinting)
-                            const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          else
-                            const Icon(Icons.print_rounded),
-                          const SizedBox(width: 8),
-                          Text(_isPrinting ? 'جاري الطباعة' : 'طباعة'),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: isReady ? _enterFullscreen : null,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: colorScheme.primary,
-                        side: BorderSide(
-                          color: colorScheme.primary,
-                          width: 1.5,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.open_in_new_rounded),
-                          SizedBox(width: 8),
-                          Text('فتح'),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

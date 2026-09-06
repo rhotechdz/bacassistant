@@ -31,6 +31,9 @@ class AuthService {
 
       return await firebaseAuth.signInWithCredential(credential);
     } on GoogleSignInException catch (error) {
+      if (error.code == GoogleSignInExceptionCode.canceled) {
+        rethrow;
+      }
       final description = error.description;
       final details = error.details;
       throw StateError(

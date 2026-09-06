@@ -67,7 +67,10 @@ class MyApp extends StatelessWidget {
               }
 
               return prefs.getBool('firstRun') == true
-                  ? const IntroductionFlow()
+                  ? Theme(
+                      data: lightTheme,
+                      child: const IntroductionFlow(),
+                    )
                   : const LoginPage();
             },
           ));

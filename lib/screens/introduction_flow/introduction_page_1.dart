@@ -1,6 +1,3 @@
-
-
-import 'package:bacassistant/screens/introduction_flow/press_animation_button.dart';
 import 'package:bacassistant/themes/griadient_color.dart';
 import 'package:bacassistant/themes/ui_colors.dart';
 import 'package:bacassistant/utils/constants.dart';
@@ -15,23 +12,29 @@ class IntroductionPageOne extends StatefulWidget {
 }
 
 class _IntroductionPageOneState extends State<IntroductionPageOne> {
-
   final fieldList = fieldDict.keys.toList();
+  static const fieldIcons = {
+    'شعبة علوم تجريبية': Icons.biotech_outlined,
+    'شعبة آداب وفلسفة': Icons.menu_book_outlined,
+    'شعبة لغات أجنبية': Icons.translate_outlined,
+    'شعبة تسيير واقتصاد': Icons.business_center_outlined,
+    'شعبة رياضيات': Icons.calculate_outlined,
+    'شعبة تقني رياضي': Icons.engineering_outlined,
+  };
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: Stack(
         children: [
           Container(
             decoration: BoxDecoration(
               gradient: RadialGradient(
-                center: Alignment(0.9, 0.5), 
-                radius: 0.6, 
+                center: Alignment(0.9, 0.5),
+                radius: 0.6,
                 focalRadius: 0.5,
                 colors: [
-                  GradientColors.color1.withAlpha(30), 
+                  GradientColors.color1.withAlpha(30),
                   GradientColors.color2.withAlpha(20),
                 ],
               ),
@@ -44,15 +47,16 @@ class _IntroductionPageOneState extends State<IntroductionPageOne> {
                 radius: 0.6, // smaller = tighter circle, larger = spread out
                 focalRadius: 0.5,
                 colors: [
-                  GradientColors.color1.withAlpha(60), // top-left
-                  GradientColors.color2.withAlpha(50), // outer color
+                  GradientColors.color1.withAlpha(60),
+                  GradientColors.color2.withAlpha(50),
                 ],
               ),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("اِخْتَرْ شُعْبَتَكَ",
+                Text(
+                  "اِخْتَرْ شُعْبَتَكَ",
                   textDirection: TextDirection.ltr,
                   style: TextStyle(
                     color: AppColors.text,
@@ -63,7 +67,8 @@ class _IntroductionPageOneState extends State<IntroductionPageOne> {
                 SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: Text('حدد الشعبـة الخاصة بك لتحصل على محتوى موجه ومناسب لك',
+                  child: Text(
+                    'حدد الشعبـة الخاصة بك لتحصل على محتوى موجه ومناسب لك',
                     textDirection: TextDirection.ltr,
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -75,77 +80,110 @@ class _IntroductionPageOneState extends State<IntroductionPageOne> {
                 ),
                 SizedBox(height: 40),
                 Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
+                  width: MediaQuery.of(context).size.width * 0.78,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(12),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surface
+                        .withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 18,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: Column(
                     children: List.generate(fieldList.length, (index) {
-                      return PressAnimationButton(
-                        label: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              fieldList[index],
-                              textDirection: TextDirection.ltr,
-                              textHeightBehavior: const TextHeightBehavior(
-                                applyHeightToFirstAscent: false,
-                                applyHeightToLastDescent: false,
-                              ),
-                              strutStyle: const StrutStyle(
-                                forceStrutHeight: true,
-                                height: 1.2,
-                                leading: 0,
-                              ),
-                              style: TextStyle(
-                                letterSpacing: 0.6,
-                                color: prefs.getString("chosenField")! == fieldList[index]
-                                ? Colors.black
-                                : Colors.black,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 16.0),
-                              child: Icon(
-                                prefs.getString("chosenField")! == fieldList[index]
-                                ? Icons.radio_button_checked
-                                : Icons.radio_button_unchecked,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ],
+                      final field = fieldList[index];
+                      final isSelected =
+                          field == prefs.getString('chosenField');
+                      final colors = Theme.of(context).colorScheme;
+
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index == fieldList.length - 1 ? 0 : 8,
                         ),
-                        onPressed: () {
-                          setState(() {
-                            prefs.setString("chosenField", fieldList[index]);
-                          });
-                        },
-                        style: TextButton.styleFrom(
-                          alignment: Alignment.centerRight,
-                          elevation: 0,
-                          minimumSize: Size(double.infinity, 65),
-                          textStyle: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Tajawal',
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? colors.primaryContainer
+                                : colors.surface,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected
+                                  ? colors.primary.withValues(alpha: 0.55)
+                                  : colors.outlineVariant,
+                            ),
                           ),
-                          backgroundColor: prefs.getString("chosenField")! == fieldList[index]
-                          ? Colors.transparent
-                          : Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: index == 0 ? const Radius.circular(9) : Radius.zero,
-                              bottom: index == fieldList.length - 1
-                                ? const Radius.circular(9)
-                                : Radius.zero,
-                            )
+                          child: Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(16),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              onTap: () {
+                                setState(() {
+                                  prefs.setString('chosenField', field);
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 16,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      fieldIcons[field] ??
+                                          Icons.school_outlined,
+                                      color: isSelected
+                                          ? colors.onPrimaryContainer
+                                          : colors.onSurfaceVariant,
+                                      size: 25,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        field,
+                                        textDirection: TextDirection.rtl,
+                                        textAlign: TextAlign.right,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              color: isSelected
+                                                  ? colors.onPrimaryContainer
+                                                  : colors.onSurface,
+                                            ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Icon(
+                                      isSelected
+                                          ? Icons.radio_button_checked
+                                          : Icons.radio_button_unchecked,
+                                      color: isSelected
+                                          ? colors.primary
+                                          : colors.onSurfaceVariant,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       );
-                    })
+                    }),
                   ),
                 ),
               ],

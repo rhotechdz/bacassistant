@@ -3,6 +3,7 @@ import 'package:bacassistant/screens/introduction_flow/press_animation_button.da
 import 'package:bacassistant/themes/griadient_color.dart';
 import 'package:bacassistant/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lottie/lottie.dart';
 
 class IntroductionPageTwo extends StatefulWidget {
@@ -14,11 +15,12 @@ class IntroductionPageTwo extends StatefulWidget {
 
 class _IntroductionPageTwoState extends State<IntroductionPageTwo> {
   final fieldList = fieldDict.keys.toList();
-  Color color1 = GradientColors.color1; // top-left
-  Color color2 = GradientColors.color2; // bottom-right
+  bool _isSigningIn = false;
 
   @override
   Widget build(BuildContext context) {
+    final buttonWidth = MediaQuery.of(context).size.width * 0.72;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -42,8 +44,8 @@ class _IntroductionPageTwoState extends State<IntroductionPageTwo> {
                 radius: 0.6, // smaller = tighter circle, larger = spread out
                 focalRadius: 0.5,
                 colors: [
-                  GradientColors.color1.withAlpha(60), // top-left
-                  GradientColors.color2.withAlpha(50), // outer color
+                  GradientColors.color1.withAlpha(60),
+                  GradientColors.color2.withAlpha(50),
                 ],
               ),
             ),
@@ -80,51 +82,79 @@ class _IntroductionPageTwoState extends State<IntroductionPageTwo> {
                     'assets/animations/intro_illustration.json',
                     height: 350,
                   ),
-                  Tappable(
-                    borderRadius: BorderRadius.circular(18),
-                    onTap: () async {
-                      try {
-                        await AuthService().signInWithGoogle();
-                      } catch (error) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('Google login failed: $error')),
-                          );
-                        }
-                      }
-                    },
-                    child: Container(
-                      width: MediaQuery.of(context).size.width * 0.72,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outlineVariant,
-                        ),
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'assets/images/android_light_rd_na@4x.png',
-                            height: 32,
-                            width: 32,
+                  _isSigningIn
+                      ? SizedBox(
+                          width: buttonWidth,
+                          height: 60,
+                          child: const Center(
+                            child: CircularProgressIndicator(),
                           ),
-                          const SizedBox(width: 10),
-                          const Text(
-                            'تسجيل الدخول',
-                            textDirection: TextDirection.rtl,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                        )
+                      : Tappable(
+                          borderRadius: BorderRadius.circular(18),
+                          onTap: () async {
+                            setState(() => _isSigningIn = true);
+                            try {
+                              await AuthService().signInWithGoogle();
+                            } on GoogleSignInException catch (error) {
+                              if (error.code !=
+                                      GoogleSignInExceptionCode.canceled &&
+                                  context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text('Google login failed: $error'),
+                                  ),
+                                );
+                              }
+                            } catch (error) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text('Google login failed: $error'),
+                                  ),
+                                );
+                              }
+                            } finally {
+                              if (mounted) {
+                                setState(() => _isSigningIn = false);
+                              }
+                            }
+                          },
+                          child: Container(
+                            width: buttonWidth,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              border: Border.all(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant,
+                              ),
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  'assets/images/android_light_rd_na@4x.png',
+                                  height: 32,
+                                  width: 32,
+                                ),
+                                const SizedBox(width: 10),
+                                const Text(
+                                  'تسجيل الدخول',
+                                  textDirection: TextDirection.rtl,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
+                        ),
                 ],
               ),
             ),

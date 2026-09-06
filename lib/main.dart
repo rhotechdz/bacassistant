@@ -45,6 +45,10 @@ class MyApp extends StatelessWidget {
           themeMode: state.themeMode,
           theme: lightTheme,
           darkTheme: darkTheme,
+          builder: (context, child) => Directionality(
+                textDirection: TextDirection.rtl,
+                child: child!,
+              ),
           routes: {
             '/grade_calculator': (context) => GradeCalculatorPage(),
             '/bac_list': (context) => BacPage(),

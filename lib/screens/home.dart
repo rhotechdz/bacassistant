@@ -100,6 +100,49 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _showProfilePopup() async {
+    final user = AuthService().firebaseAuth.currentUser;
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 42,
+              foregroundImage:
+                  user?.photoURL != null ? NetworkImage(user!.photoURL!) : null,
+              child: user?.photoURL == null
+                  ? const Icon(Icons.person_outline_rounded, size: 42)
+                  : null,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              user?.displayName ?? user?.email ?? 'المستخدم',
+              textAlign: TextAlign.center,
+              style: context.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () async {
+                  Navigator.of(dialogContext).pop();
+                  await _logout();
+                },
+                icon: const Icon(Icons.logout_rounded),
+                label: const Text('تسجيل الخروج'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _showFieldPicker() async {
     await showDialog<void>(
       context: context,
@@ -152,11 +195,6 @@ class _HomePageState extends State<HomePage> {
                 subtitle: const Text('حذف ملفات البكالوريا المحفوظة محلياً'),
                 onTap: _confirmDeleteCachedFiles,
               ),
-              ListTile(
-                leading: const Icon(Icons.logout_rounded),
-                title: const Text('تسجيل الخروج'),
-                onTap: _logout,
-              ),
               const SizedBox(height: 8),
             ],
           ),
@@ -202,25 +240,28 @@ class _HomePageState extends State<HomePage> {
           tooltip: 'الإعدادات',
           onPressed: _showSettings,
         ),
-        rightButton: Container(
-          width: 44,
-          height: 44,
-          padding: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: context.colors.surface.withValues(alpha: 0.78),
-            border: Border.all(color: context.colors.outlineVariant),
-          ),
-          child: CircleAvatar(
-            foregroundImage:
-                AuthService().firebaseAuth.currentUser?.photoURL != null
-                    ? NetworkImage(
-                        AuthService().firebaseAuth.currentUser!.photoURL!,
-                      )
-                    : null,
-            child: AuthService().firebaseAuth.currentUser?.photoURL == null
-                ? const Icon(Icons.person_outline_rounded)
-                : null,
+        rightButton: GestureDetector(
+          onTap: _showProfilePopup,
+          child: Container(
+            width: 44,
+            height: 44,
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: context.colors.surface.withValues(alpha: 0.78),
+              border: Border.all(color: context.colors.outlineVariant),
+            ),
+            child: CircleAvatar(
+              foregroundImage:
+                  AuthService().firebaseAuth.currentUser?.photoURL != null
+                      ? NetworkImage(
+                          AuthService().firebaseAuth.currentUser!.photoURL!,
+                        )
+                      : null,
+              child: AuthService().firebaseAuth.currentUser?.photoURL == null
+                  ? const Icon(Icons.person_outline_rounded)
+                  : null,
+            ),
           ),
         ),
         child: ListView(

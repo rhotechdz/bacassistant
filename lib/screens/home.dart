@@ -239,6 +239,11 @@ class _HomePageState extends State<HomePage> {
           icon: const Icon(Icons.settings_outlined),
           tooltip: 'الإعدادات',
           onPressed: _showSettings,
+          style: IconButton.styleFrom(
+            backgroundColor: context.colors.surface.withValues(alpha: 0.78),
+            side: BorderSide(color: context.colors.outlineVariant),
+            shape: const CircleBorder(),
+          ),
         ),
         rightButton: GestureDetector(
           onTap: _showProfilePopup,

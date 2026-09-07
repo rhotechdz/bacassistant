@@ -6,6 +6,7 @@ import 'package:bacassistant/routes.dart';
 import 'package:bacassistant/services/google_sign_in/auth_service.dart';
 import 'package:bacassistant/themes/bloc/theme.dart';
 import 'package:bacassistant/utils/initializer.dart';
+import 'package:bacassistant/widgets/wrap_app_bar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,34 +27,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int currentPageIndex = 0;
-  int? timestamp;
-  Duration? diff;
-  Map intervals = {};
   BannerAd? bannerAd;
-
-  Future<Map<String, dynamic>> _loadTimestamp() async {
-    final cached = prefs.getString('cached_exam_timestamp');
-    if (cached != null && cached.isNotEmpty) {
-      final decoded = jsonDecode(cached);
-      if (decoded is Map<String, dynamic>) {
-        return decoded;
-      }
-      if (decoded is Map) {
-        return decoded.cast<String, dynamic>();
-      }
-    }
-
-    final response = await Dio().get(
-      'https://bac-assistant.idrismore18.workers.dev/dev/timestamp',
-    );
-    final data = response.data;
-    final normalized = data is Map<String, dynamic>
-        ? data
-        : (data as Map).cast<String, dynamic>();
-
-    prefs.setString('cached_exam_timestamp', jsonEncode(normalized));
-    return normalized;
-  }
+  final countdownKey = GlobalKey<_CountdownCardState>();
 
   Future<int> _deleteCachedPdfFiles() async {
     final cacheDirectory = Directory('$appStorage/bac_cache');
@@ -222,26 +197,19 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        primary: true,
-        leading: IconButton(
+      body: WrapAppBar(
+        title: 'BAC GUIDE',
+        leftButton: IconButton(
           icon: const Icon(Icons.settings_outlined),
           tooltip: 'الإعدادات',
           onPressed: _showSettings,
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: IconButton(
-                icon: const Icon(Icons.refresh_rounded),
-                onPressed: () async {
-                  setState(() {});
-                }),
-          ),
-        ],
-      ),
-      body: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        rightButton: IconButton(
+          icon: const Icon(Icons.refresh_rounded),
+          onPressed: () => countdownKey.currentState?.refresh(),
+        ),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 78, 16, 24),
           children: [
             Container(
               margin: const EdgeInsets.only(bottom: 24),
@@ -269,111 +237,9 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               clipBehavior: Clip.antiAlias,
-              child: FutureBuilder<Object>(
-                  future: _loadTimestamp().then((value) {
-                    final examTimestamp = value['examTimestamp'] as int? ?? 0;
-                    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-                    final diff = (examTimestamp - now).clamp(0, 2147483647);
-
-                    int remainder = diff;
-                    intervals['أشهر'] = (remainder ~/ 2629743);
-                    remainder = remainder.remainder(2629743);
-                    intervals['يوم'] = (remainder ~/ 86400);
-                    remainder = remainder.remainder(86400);
-                    intervals['ساعة'] = (remainder ~/ 3600);
-                    remainder = remainder.remainder(3600);
-                    intervals['دقيقة'] = (remainder ~/ 60);
-
-                    return 0;
-                  }),
-                  builder: (context, snapshot) {
-                    Widget buildWidget = Container(
-                      height: 258,
-                      padding: const EdgeInsets.all(24),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: context.colors.onPrimary,
-                        ),
-                      ),
-                    );
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      buildWidget = Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              textDirection: TextDirection.rtl,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'الوقت المتبقي لامتحان البكالوريا',
-                                    textAlign: TextAlign.right,
-                                    textDirection: TextDirection.rtl,
-                                    style: context.textTheme.headlineSmall
-                                        ?.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      color: context.colors.onPrimary,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 24),
-                            Row(
-                              textDirection: TextDirection.rtl,
-                              children: intervals.entries.map((entry) {
-                                return Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 3),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 7),
-                                      decoration: BoxDecoration(
-                                        color: context.colors.onPrimary
-                                            .withValues(alpha: 0.12),
-                                        borderRadius: BorderRadius.circular(14),
-                                        border: Border.all(
-                                          color: context.colors.onPrimary
-                                              .withValues(alpha: 0.16),
-                                        ),
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            '${entry.value}',
-                                            style: context
-                                                .textTheme.headlineMedium
-                                                ?.copyWith(
-                                              fontWeight: FontWeight.w900,
-                                              color: context.colors.onPrimary,
-                                            ),
-                                          ),
-                                          Text(
-                                            entry.key,
-                                            style: context.textTheme.labelMedium
-                                                ?.copyWith(
-                                              color: context.colors.onPrimary
-                                                  .withValues(alpha: 0.72),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    return buildWidget;
-                  }),
+              child: CountdownCard(key: countdownKey),
             ),
+            const SizedBox(height: 12),
             Text(
               'ماذا تريد أن تنجز اليوم؟',
               style: context.textTheme.titleLarge?.copyWith(
@@ -402,7 +268,9 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-          ]),
+          ],
+        ),
+      ),
       bottomNavigationBar: adService.bannerAd != null
           ? SizedBox(
               width: adService.bannerAd!.size.width.toDouble(),
@@ -420,6 +288,134 @@ const Map<String, IconData> _pageIcons = {
   'اختبر نفسك': Icons.lightbulb_outline_rounded,
   'حساب المعدل': Icons.calculate_rounded,
 };
+
+class CountdownCard extends StatefulWidget {
+  const CountdownCard({super.key});
+
+  @override
+  State<CountdownCard> createState() => _CountdownCardState();
+}
+
+class _CountdownCardState extends State<CountdownCard> {
+  late Future<Map<String, dynamic>> _timestampFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _timestampFuture = _loadTimestamp();
+  }
+
+  Future<Map<String, dynamic>> _loadTimestamp() async {
+    final cached = prefs.getString('cached_exam_timestamp');
+    if (cached != null && cached.isNotEmpty) {
+      final decoded = jsonDecode(cached);
+      if (decoded is Map<String, dynamic>) return decoded;
+      if (decoded is Map) return decoded.cast<String, dynamic>();
+    }
+
+    final response = await Dio().get(
+      'https://bac-assistant.idrismore18.workers.dev/dev/timestamp',
+    );
+    final data = response.data;
+    final normalized = data is Map<String, dynamic>
+        ? data
+        : (data as Map).cast<String, dynamic>();
+    prefs.setString('cached_exam_timestamp', jsonEncode(normalized));
+    return normalized;
+  }
+
+  void refresh() {
+    setState(() => _timestampFuture = _loadTimestamp());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _timestampFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const SizedBox(
+            height: 258,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final examTimestamp = snapshot.data?['examTimestamp'] as int? ?? 0;
+        var remainder =
+            (examTimestamp - DateTime.now().millisecondsSinceEpoch ~/ 1000)
+                .clamp(0, 2147483647);
+        final intervals = <String, int>{
+          'أشهر': remainder ~/ 2629743,
+        };
+        remainder %= 2629743;
+        intervals['يوم'] = remainder ~/ 86400;
+        remainder %= 86400;
+        intervals['ساعة'] = remainder ~/ 3600;
+        remainder %= 3600;
+        intervals['دقيقة'] = remainder ~/ 60;
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'الوقت المتبقي لامتحان البكالوريا',
+                textAlign: TextAlign.right,
+                style: context.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: context.colors.onPrimary,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                textDirection: TextDirection.rtl,
+                children: intervals.entries.map((entry) {
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 7),
+                        decoration: BoxDecoration(
+                          color:
+                              context.colors.onPrimary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: context.colors.onPrimary
+                                .withValues(alpha: 0.16),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              '${entry.value}',
+                              style: context.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: context.colors.onPrimary,
+                              ),
+                            ),
+                            Text(
+                              entry.key,
+                              style: context.textTheme.labelMedium?.copyWith(
+                                color: context.colors.onPrimary
+                                    .withValues(alpha: 0.72),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
 
 class _HomeActionCard extends StatelessWidget {
   final String title;

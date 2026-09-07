@@ -198,7 +198,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: WrapAppBar(
-        title: 'BAC GUIDE',
         leftButton: IconButton(
           icon: const Icon(Icons.settings_outlined),
           tooltip: 'الإعدادات',

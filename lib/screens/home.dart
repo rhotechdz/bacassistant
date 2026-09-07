@@ -247,27 +247,22 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 20),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: pages.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.95,
-              ),
-              itemBuilder: (context, index) {
-                final element = pages[index];
-                return _HomeActionCard(
+            ...pages.asMap().entries.map((entry) {
+              final element = entry.value;
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: entry.key == pages.length - 1 ? 0 : 12,
+                ),
+                child: _HomeActionCard(
                   title: element['title'] as String,
+                  subtitle: _pageSubtitles[element['title']] ?? '',
                   icon: _pageIcons[element['title']] ?? Icons.school_outlined,
                   onTap: () => Navigator.of(context).push(
                     drillDown(element['route'] as Widget),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            }),
           ],
         ),
       ),
@@ -284,9 +279,14 @@ class _HomePageState extends State<HomePage> {
 
 const Map<String, IconData> _pageIcons = {
   'بكالوريا سابقة': Icons.menu_book_rounded,
-  'المقرر الدراسي': Icons.auto_stories_rounded,
   'اختبر نفسك': Icons.lightbulb_outline_rounded,
   'حساب المعدل': Icons.calculate_rounded,
+};
+
+const Map<String, String> _pageSubtitles = {
+  'بكالوريا سابقة': 'راجع مواضيع البكالوريا السابقة وحلولها',
+  'اختبر نفسك': 'اختبر معلوماتك واستعد للامتحان',
+  'حساب المعدل': 'احسب معدلك في البكالوريا بسهولة',
 };
 
 class CountdownCard extends StatefulWidget {
@@ -419,11 +419,13 @@ class _CountdownCardState extends State<CountdownCard> {
 
 class _HomeActionCard extends StatelessWidget {
   final String title;
+  final String subtitle;
   final IconData icon;
   final VoidCallback onTap;
 
   const _HomeActionCard({
     required this.title,
+    required this.subtitle,
     required this.icon,
     required this.onTap,
   });
@@ -449,40 +451,39 @@ class _HomeActionCard extends StatelessWidget {
                 ? colors.primary.withValues(alpha: 0.08)
                 : null,
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Icon(
-                    Icons.arrow_outward_rounded,
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+            leading: Container(
+              padding: const EdgeInsets.all(9),
+              decoration: BoxDecoration(
+                color: colors.primaryContainer,
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Icon(
+                icon,
+                color: colors.onPrimaryContainer,
+                size: 28,
+              ),
+            ),
+            title: Text(
+              title,
+              textAlign: TextAlign.right,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            subtitle: Text(
+              subtitle,
+              textAlign: TextAlign.right,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: colors.onSurfaceVariant,
-                    size: 20,
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(13),
-                  decoration: BoxDecoration(
-                    color: colors.primaryContainer,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    icon,
-                    color: colors.onPrimaryContainer,
-                    size: 30,
-                  ),
-                ),
-                Text(
-                  title,
-                  textAlign: TextAlign.right,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-              ],
+            ),
+            trailing: Icon(
+              Icons.chevron_right_rounded,
+              color: colors.onSurfaceVariant,
+              size: 24,
             ),
           ),
         ),

@@ -28,7 +28,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int currentPageIndex = 0;
   BannerAd? bannerAd;
-  final countdownKey = GlobalKey<_CountdownCardState>();
 
   Future<int> _deleteCachedPdfFiles() async {
     final cacheDirectory = Directory('$appStorage/bac_cache');
@@ -203,9 +202,26 @@ class _HomePageState extends State<HomePage> {
           tooltip: 'الإعدادات',
           onPressed: _showSettings,
         ),
-        rightButton: IconButton(
-          icon: const Icon(Icons.refresh_rounded),
-          onPressed: () => countdownKey.currentState?.refresh(),
+        rightButton: Container(
+          width: 44,
+          height: 44,
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: context.colors.surface.withValues(alpha: 0.78),
+            border: Border.all(color: context.colors.outlineVariant),
+          ),
+          child: CircleAvatar(
+            foregroundImage:
+                AuthService().firebaseAuth.currentUser?.photoURL != null
+                    ? NetworkImage(
+                        AuthService().firebaseAuth.currentUser!.photoURL!,
+                      )
+                    : null,
+            child: AuthService().firebaseAuth.currentUser?.photoURL == null
+                ? const Icon(Icons.person_outline_rounded)
+                : null,
+          ),
         ),
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 78, 16, 24),
@@ -236,7 +252,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               clipBehavior: Clip.antiAlias,
-              child: CountdownCard(key: countdownKey),
+              child: const CountdownCard(),
             ),
             const SizedBox(height: 12),
             Text(
@@ -321,10 +337,6 @@ class _CountdownCardState extends State<CountdownCard> {
         : (data as Map).cast<String, dynamic>();
     prefs.setString('cached_exam_timestamp', jsonEncode(normalized));
     return normalized;
-  }
-
-  void refresh() {
-    setState(() => _timestampFuture = _loadTimestamp());
   }
 
   @override

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bacassistant/features/quiz/models/quiz_models.dart';
 import 'package:bacassistant/features/quiz/views/quiz_results_page.dart';
+import 'package:bacassistant/utils/initializer.dart';
 import 'package:flutter/material.dart';
 
 class QuizPage extends StatefulWidget {
@@ -19,6 +20,7 @@ class _QuizPageState extends State<QuizPage> {
   Timer? _timer;
   var _currentIndex = 0;
   var _isExitDialogOpen = false;
+  var _isFinishing = false;
   late int _remainingSeconds;
   late final DateTime _startedAt;
 
@@ -30,6 +32,8 @@ class _QuizPageState extends State<QuizPage> {
     _answers = List<int?>.filled(widget.questions.length, null);
     _remainingSeconds = widget.settings.timePerQuestion.inSeconds;
     _startedAt = DateTime.now();
+    adService.beginFullScreenContent();
+    adService.loadRewardedInterstitialAd();
     _startTimer();
   }
 
@@ -57,19 +61,46 @@ class _QuizPageState extends State<QuizPage> {
     _startTimer();
   }
 
-  void _finish() {
+  Future<void> _finish() async {
+    if (_isFinishing) {
+      return;
+    }
+    _isFinishing = true;
     _timer?.cancel();
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(
-        builder: (_) => QuizResultsPage(
-          result: QuizResult(
-            questions: widget.questions,
-            answers: _answers,
-            elapsed: DateTime.now().difference(_startedAt),
-          ),
-        ),
-      ),
+    final result = QuizResult(
+      questions: widget.questions,
+      answers: _answers,
+      elapsed: DateTime.now().difference(_startedAt),
     );
+    var resultsShown = false;
+
+    void showResults() {
+      if (!mounted || resultsShown) {
+        return;
+      }
+      resultsShown = true;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => QuizResultsPage(result: result),
+        ),
+      );
+    }
+
+    final shouldShowAd =
+        await adService.shouldShowTriggerAd(prefs, 'quizAdCounter');
+    adService.endFullScreenContent();
+    if (!shouldShowAd || !adService.isRewardedInterstitialAdAvailable) {
+      showResults();
+      return;
+    }
+
+    final didShowAd = await adService.showRewardedInterstitialAd(
+      onDismissed: showResults,
+      onFailedToShow: (_, __) => showResults(),
+    );
+    if (!didShowAd) {
+      showResults();
+    }
   }
 
   Future<void> _confirmExit() async {
@@ -130,6 +161,7 @@ class _QuizPageState extends State<QuizPage> {
   @override
   void dispose() {
     _timer?.cancel();
+    adService.endFullScreenContent();
     super.dispose();
   }
 
@@ -142,137 +174,139 @@ class _QuizPageState extends State<QuizPage> {
         if (!didPop) _confirmExit();
       },
       child: Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: SizedBox(
-          width: 32,
-          height: 32,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              CircularProgressIndicator(
-                value: _remainingSeconds /
-                    widget.settings.timePerQuestion.inSeconds,
-                strokeWidth: 3,
-              ),
-              Text(
-                '$_remainingSeconds',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: SizedBox(
+            width: 32,
+            height: 32,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                CircularProgressIndicator(
+                  value: _remainingSeconds /
+                      widget.settings.timePerQuestion.inSeconds,
+                  strokeWidth: 3,
                 ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            color: Theme.of(context).colorScheme.primary,
-            onPressed: _confirmExit,
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              '${_currentIndex + 1} / ${widget.questions.length}',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                Text(
+                  '$_remainingSeconds',
+                  style: const TextStyle(
+                    fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    fontSize: 13,
                   ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 5),
-          LinearProgressIndicator(
-            value: (_currentIndex + 1) / widget.questions.length,
-          ),
-          const SizedBox(height: 16),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Chip(
-              label: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: MediaQuery.sizeOf(context).width - 80,
-                ),
-                child: Text(
-                  _question.unit,
-                  softWrap: true,
-                  textAlign: TextAlign.right,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.close),
+              color: Theme.of(context).colorScheme.primary,
+              onPressed: _confirmExit,
+            ),
+          ],
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                '${_currentIndex + 1} / ${widget.questions.length}',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+              ),
+            ),
+            const SizedBox(height: 5),
+            LinearProgressIndicator(
+              value: (_currentIndex + 1) / widget.questions.length,
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Chip(
+                label: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.sizeOf(context).width - 80,
+                  ),
+                  child: Text(
+                    _question.unit,
+                    softWrap: true,
+                    textAlign: TextAlign.right,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          Text(_question.text,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  )),
-          const SizedBox(height: 20),
-          ..._question.options.asMap().entries.map(
-                (entry) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(14),
-                    onTap: () => setState(
-                      () => _answers[_currentIndex] = entry.key,
-                    ),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 160),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 15,
+            const SizedBox(height: 20),
+            Text(_question.text,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    )),
+            const SizedBox(height: 20),
+            ..._question.options.asMap().entries.map(
+                  (entry) => Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: () => setState(
+                        () => _answers[_currentIndex] = entry.key,
                       ),
-                      decoration: BoxDecoration(
-                        color: selectedAnswer == entry.key
-                            ? Theme.of(context).colorScheme.primaryContainer
-                            : Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: selectedAnswer == entry.key
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.outlineVariant,
-                          width: selectedAnswer == entry.key ? 1.5 : 1,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 160),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 15,
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            selectedAnswer == entry.key
-                                ? Icons.check_circle_rounded
-                                : Icons.radio_button_unchecked_rounded,
+                        decoration: BoxDecoration(
+                          color: selectedAnswer == entry.key
+                              ? Theme.of(context).colorScheme.primaryContainer
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
                             color: selectedAnswer == entry.key
                                 ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                                : Theme.of(context).colorScheme.outlineVariant,
+                            width: selectedAnswer == entry.key ? 1.5 : 1,
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              entry.value,
-                              textAlign: TextAlign.right,
-                              style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              selectedAnswer == entry.key
+                                  ? Icons.check_circle_rounded
+                                  : Icons.radio_button_unchecked_rounded,
+                              color: selectedAnswer == entry.key
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                entry.value,
+                                textAlign: TextAlign.right,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: selectedAnswer == null ? null : _next,
-            child: Text(_currentIndex == widget.questions.length - 1
-                ? 'إنهاء الاختبار'
-                : 'السؤال التالي'),
-          ),
-        ],
-      ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: selectedAnswer == null ? null : _next,
+              child: Text(_currentIndex == widget.questions.length - 1
+                  ? 'إنهاء الاختبار'
+                  : 'السؤال التالي'),
+            ),
+          ],
+        ),
       ),
     );
   }

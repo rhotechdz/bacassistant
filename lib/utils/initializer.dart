@@ -37,7 +37,6 @@ class Initializer {
     prefs.setBool("firstRun", true);
     prefs.setBool("sports", true);
     prefs.setBool("tamazight", true);
-    prefs.setInt("adCounter", 0);
   }
 
   static Future<void> run() async {
@@ -64,8 +63,7 @@ class Initializer {
     // Load ad service
     await MobileAds.instance.initialize();
     adService = AdMobService();
-    /* AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
-      320 // width
-    ).then((size) => adSize = size); */
+    adService.loadAppOpenAd();
+    adService.listenToAppStateChanges();
   }
 }

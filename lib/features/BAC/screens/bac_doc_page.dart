@@ -61,6 +61,12 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
   bool _showCorrection = false;
   bool _isPrinting = false;
 
+  @override
+  void initState() {
+    super.initState();
+    adService.loadRewardedInterstitialAd();
+  }
+
   Future<void> _printDocument() async {
     final state = context.read<BacBloc>().state;
     if (state is! BacDocReady || _isPrinting) {
@@ -73,6 +79,18 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
 
     try {
       final bytes = await File(documentPath).readAsBytes();
+      final shouldShowAd =
+          await adService.shouldShowTriggerAd(prefs, 'printAdCounter');
+      if (shouldShowAd) {
+        final didShowAd = await adService.showRewardedInterstitialAd();
+        if (!didShowAd) {
+          adService.loadRewardedInterstitialAd();
+        }
+      } else {
+        adService.loadRewardedInterstitialAd();
+      }
+
+      adService.suppressNextAppOpenAd();
       await Printing.layoutPdf(
         onLayout: (_) async => bytes,
         name:
@@ -511,6 +529,7 @@ class _BacFullscreenPdfPageState extends State<BacFullscreenPdfPage> {
   @override
   void initState() {
     super.initState();
+    adService.beginFullScreenContent();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
@@ -520,6 +539,7 @@ class _BacFullscreenPdfPageState extends State<BacFullscreenPdfPage> {
 
   @override
   void dispose() {
+    adService.endFullScreenContent();
     if (!_isExiting) {
       SystemChrome.setEnabledSystemUIMode(
         SystemUiMode.manual,

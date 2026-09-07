@@ -203,31 +203,31 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /* @override
+  @override
   void initState() {
     super.initState();
-    AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
-      MediaQuery.of(context).size.width.truncate()
-    ).then((size) => adSize = size);
-    adService.loadAppOpenAd();
-    adService.listenToAppStateChanges();
-  } */
+  }
 
-  /* @override
-  void didChangeDependencies() async {
-    /* adSize == null
-    ? await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
-      MediaQuery.of(context).size.width.truncate()
-    ).then((size) => adSize = size)
-    : null; */
-    /* adService.loadBannerAd(adSize);
-    setState(() {}); */
+  @override
+  void didChangeDependencies() {
     super.didChangeDependencies();
-  } */
+    if (adService.bannerAd != null) {
+      return;
+    }
+    AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+      MediaQuery.sizeOf(context).width.truncate(),
+    ).then((size) {
+      if (size != null) {
+        adSize = size;
+        adService.loadBannerAd(size);
+      }
+    });
+  }
 
   @override
   void dispose() {
-    adService.bannerAd!.dispose();
+    adService.bannerAd?.dispose();
+    adService.bannerAd = null;
     super.dispose();
   }
 
@@ -322,13 +322,19 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      bottomNavigationBar: adService.bannerAd != null
-          ? SizedBox(
-              width: adService.bannerAd!.size.width.toDouble(),
-              height: adService.bannerAd!.size.height.toDouble(),
-              child: AdWidget(ad: adService.bannerAd!),
-            )
-          : null,
+      bottomNavigationBar: ListenableBuilder(
+        listenable: adService,
+        builder: (context, child) {
+          final banner = adService.bannerAd;
+          return banner == null
+              ? const SizedBox.shrink()
+              : SizedBox(
+                  width: banner.size.width.toDouble(),
+                  height: banner.size.height.toDouble(),
+                  child: AdWidget(ad: banner),
+                );
+        },
+      ),
     );
   }
 }

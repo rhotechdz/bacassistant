@@ -203,25 +203,3 @@ Widget fieldPicker(BuildContext context, Function setState) {
     ),
   );
 }
-
-void loadInterstitialAd() {
-  int? adCounter = prefs.getInt('adCounter');
-  debugPrint('adCounter: $adCounter');
-  if (adCounter! >= 2) {
-    adService.loadInterstitialAd();
-    prefs.setInt('adCounter', 0);
-  } else {
-    prefs.setInt('adCounter', adCounter + 1);
-  }
-}
-
-void loadRewardedAd() {
-  int? adCounter = prefs.getInt('adCounter');
-  debugPrint('adCounter: $adCounter');
-  if (adCounter! >= 1) {
-    adService.loadRewardedInterstitialAd();
-    prefs.setInt('adCounter', 0);
-  } else {
-    prefs.setInt('adCounter', adCounter + 1);
-  }
-}

@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'dart:async';
 
-class AdMobService {
+import 'package:flutter/foundation.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class AdMobService extends ChangeNotifier {
   BannerAd? bannerAd;
   InterstitialAd? interstitialAd;
   RewardedAd? rewardedAd;
@@ -11,6 +14,10 @@ class AdMobService {
   DateTime? _appOpenLoadTime;
   AppOpenAd? _appOpenAd;
   bool _isShowingAd = false;
+  bool _hasBeenBackgrounded = false;
+  bool _suppressNextForegroundAd = false;
+  bool _isListeningToAppState = false;
+  int _activeFullScreenContentCount = 0;
 
   final testBannerAdId = 'ca-app-pub-3940256099942544/9214589741';
   final testInterstitialAdId = 'ca-app-pub-3940256099942544/1033173712';
@@ -21,98 +28,135 @@ class AdMobService {
   final bannerAdId = 'ca-app-pub-8504521984385302/2217275358';
   final interstitialAdId = 'ca-app-pub-8504521984385302/1834131979';
   final appOpenAdId = 'ca-app-pub-8504521984385302/6371262145';
-  final rewardedAdId = 'ca-app-pub-3940256099942544/5224354917';
+  final rewardedAdId = 'ca-app-pub-8504521984385302/4515509207';
   final rewardedInterstitialAdId = 'ca-app-pub-8504521984385302/4515509207';
 
-  void loadBannerAd(size) async {
+  String get _bannerUnitId => kDebugMode ? testBannerAdId : bannerAdId;
+  String get _interstitialUnitId =>
+      kDebugMode ? testInterstitialAdId : interstitialAdId;
+  String get _appOpenUnitId => kDebugMode ? testAppOpenAdId : appOpenAdId;
+  String get _rewardedUnitId => kDebugMode ? testRewardedAdId : rewardedAdId;
+  String get _rewardedInterstitialUnitId =>
+      kDebugMode ? testRewardedInterstitialAdId : rewardedInterstitialAdId;
+
+  void loadBannerAd(AdSize size) {
+    bannerAd?.dispose();
     bannerAd = BannerAd(
-      adUnitId: testBannerAdId,
+      adUnitId: _bannerUnitId,
       size: size,
       request: const AdRequest(),
       listener: BannerAdListener(
-        onAdLoaded: (Ad ad) => debugPrint('bannedAd loaded.'),
-        onAdFailedToLoad: (Ad ad, LoadAdError error) => ad.dispose(),
-        onAdOpened: (Ad ad) => debugPrint('bannedAd opened.'),
-        onAdClosed: (Ad ad) => debugPrint('bannedAd closed.'),
-        onAdImpression: (Ad ad) => debugPrint('bannedAd impression.'),
-      )
-    )
-    ..load();
+        onAdLoaded: (Ad ad) {
+          debugPrint('BannerAd loaded.');
+          notifyListeners();
+        },
+        onAdFailedToLoad: (Ad ad, LoadAdError error) {
+          debugPrint('BannerAd failed to load: $error');
+          ad.dispose();
+          bannerAd = null;
+          notifyListeners();
+        },
+        onAdOpened: (Ad ad) => debugPrint('BannerAd opened.'),
+        onAdClosed: (Ad ad) => debugPrint('BannerAd closed.'),
+        onAdImpression: (Ad ad) => debugPrint('BannerAd impression.'),
+      ),
+    )..load();
   }
 
-  void loadInterstitialAd() async {
-    await InterstitialAd.load(
-      adUnitId: testInterstitialAdId,
+  void loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: _interstitialUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (InterstitialAd ad) {
           interstitialAd = ad;
           interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
             onAdDismissedFullScreenContent: (ad) {
+              _isShowingAd = false;
+              _activeFullScreenContentCount--;
               ad.dispose();
             },
             onAdFailedToShowFullScreenContent: (ad, error) {
+              _isShowingAd = false;
+              _activeFullScreenContentCount--;
               ad.dispose();
             },
           );
-          interstitialAd!.show();
+          _showFullScreenAd(() => interstitialAd!.show());
           interstitialAd = null;
         },
         onAdFailedToLoad: (LoadAdError error) => interstitialAd = null,
-      ));
+      ),
+    );
   }
 
   void loadRewardedInterstitialAd() {
-    RewardedInterstitialAd.load(
-        adUnitId: testRewardedInterstitialAdId,
-        request: const AdRequest(),
-        rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
-          // Called when an ad is successfully received.
-          onAdLoaded: (ad) {
-            ad.fullScreenContentCallback = FullScreenContentCallback(
-              // Called when the ad showed the full screen content.
-              onAdShowedFullScreenContent: (ad) {
-                debugPrint('$ad onAdShowedFullScreenContent');
-              },
-              // Called when an impression occurs on the ad.
-              onAdImpression: (ad) {
-                debugPrint('$ad onAdImpression');
-              },
-              // Called when the ad failed to show full screen content.
-              onAdFailedToShowFullScreenContent: (ad, err) {
-                debugPrint('$ad onAdFailedToShowFullScreenContent: $err');
-                // Dispose the ad here to free resources.
-                ad.dispose();
-              },
-              // Called when the ad dismissed full screen content.
-              onAdDismissedFullScreenContent: (ad) {
-                debugPrint('$ad onAdDismissedFullScreenContent');
-                // Dispose the ad here to free resources.
-                ad.dispose();
-              },
-              // Called when a click is recorded for an ad.
-              onAdClicked: (ad) {
-                debugPrint('$ad onAdClicked');
-              });
+    if (rewardedInterstitialAd != null) {
+      return;
+    }
 
-            debugPrint('$ad loaded.');
-            // Keep a reference to the ad so you can show it later.
-            rewardedInterstitialAd = ad;
-            rewardedInterstitialAd!.show(
-              onUserEarnedReward: (ad, reward) {
-                debugPrint('User earned reward: $reward');
-              });
-          },
-          // Called when an ad request failed.
-          onAdFailedToLoad: (LoadAdError error) {
-            debugPrint('RewardedInterstitialAd failed to load: $error');
-          },
-        ));
+    RewardedInterstitialAd.load(
+      adUnitId: _rewardedInterstitialUnitId,
+      request: const AdRequest(),
+      rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
+        onAdLoaded: (RewardedInterstitialAd ad) {
+          debugPrint('$ad loaded.');
+          rewardedInterstitialAd = ad;
+          notifyListeners();
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          debugPrint('RewardedInterstitialAd failed to load: $error');
+          rewardedInterstitialAd = null;
+          notifyListeners();
+        },
+      ),
+    );
+  }
+
+  bool get isRewardedInterstitialAdAvailable => rewardedInterstitialAd != null;
+
+  Future<bool> showRewardedInterstitialAd({
+    VoidCallback? onDismissed,
+    void Function(Ad, AdError)? onFailedToShow,
+  }) async {
+    final ad = rewardedInterstitialAd;
+    if (ad == null || _isShowingAd || _activeFullScreenContentCount > 0) {
+      return false;
+    }
+
+    rewardedInterstitialAd = null;
+    final completer = Completer<bool>();
+    _isShowingAd = true;
+    _activeFullScreenContentCount++;
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (_) => debugPrint('$ad shown.'),
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        _isShowingAd = false;
+        _activeFullScreenContentCount--;
+        ad.dispose();
+        onFailedToShow?.call(ad, error);
+        if (!completer.isCompleted) {
+          completer.complete(false);
+        }
+      },
+      onAdDismissedFullScreenContent: (ad) {
+        _isShowingAd = false;
+        _activeFullScreenContentCount--;
+        ad.dispose();
+        onDismissed?.call();
+        if (!completer.isCompleted) {
+          completer.complete(true);
+        }
+      },
+    );
+    ad.show(onUserEarnedReward: (_, __) {});
+    loadRewardedInterstitialAd();
+    return completer.future;
   }
 
   Future<void> loadRewardedAd(Function? callback) async {
-    RewardedAd.load(
-      adUnitId: testRewardedAdId,
+    await RewardedAd.load(
+      adUnitId: _rewardedUnitId,
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (RewardedAd ad) {
@@ -120,23 +164,42 @@ class AdMobService {
           showRewardedAd(callback);
         },
         onAdFailedToLoad: (LoadAdError error) => rewardedAd = null,
-      )
+      ),
     );
   }
 
   void showRewardedAd(Function? callback) {
-    rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
-      onAdDismissedFullScreenContent: (ad) => ad.dispose(),
-      onAdFailedToShowFullScreenContent: (ad, error) => ad.dispose());
-    rewardedAd!
-      .show(onUserEarnedReward: (ad, reward) => callback!(ad, reward));
+    final ad = rewardedAd;
+    if (ad == null || _isShowingAd || _activeFullScreenContentCount > 0) {
+      return;
+    }
+    _isShowingAd = true;
+    _activeFullScreenContentCount++;
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (_) => debugPrint('$ad shown.'),
+      onAdDismissedFullScreenContent: (ad) {
+        _isShowingAd = false;
+        _activeFullScreenContentCount--;
+        ad.dispose();
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        _isShowingAd = false;
+        _activeFullScreenContentCount--;
+        ad.dispose();
+      },
+    );
+    ad.show(
+      onUserEarnedReward: (ad, reward) => callback?.call(ad, reward),
+    );
     rewardedAd = null;
   }
 
   void loadAppOpenAd() {
+    if (_appOpenAd != null) {
+      return;
+    }
     AppOpenAd.load(
-      adUnitId: testAppOpenAdId,
-      //orientation: AppOpenAd.orientationPortrait,
+      adUnitId: _appOpenUnitId,
       request: const AdRequest(),
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {
@@ -151,18 +214,17 @@ class AdMobService {
     );
   }
 
-  bool get isAdAvailable {
-    return _appOpenAd != null;
-  }
+  bool get isAdAvailable => _appOpenAd != null;
 
   void showAdIfAvailable() {
-    if (!isAdAvailable) {
-      debugPrint('Tried to show ad before available.');
-      loadAppOpenAd();
+    if (!_hasBeenBackgrounded ||
+        _isShowingAd ||
+        _activeFullScreenContentCount > 0) {
       return;
     }
-    if (_isShowingAd) {
-      debugPrint('Tried to show ad while already showing an ad.');
+    if (!isAdAvailable) {
+      debugPrint('Tried to show app-open ad before available.');
+      loadAppOpenAd();
       return;
     }
     if (DateTime.now().subtract(maxCacheDuration).isAfter(_appOpenLoadTime!)) {
@@ -173,38 +235,85 @@ class AdMobService {
       return;
     }
 
-    _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
+    final ad = _appOpenAd!;
+    _isShowingAd = true;
+    _activeFullScreenContentCount++;
+    ad.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (ad) {
-        _isShowingAd = true;
         debugPrint('$ad onAdShowedFullScreenContent');
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
         debugPrint('$ad onAdFailedToShowFullScreenContent: $error');
         _isShowingAd = false;
+        _activeFullScreenContentCount--;
         ad.dispose();
         _appOpenAd = null;
       },
       onAdDismissedFullScreenContent: (ad) {
         debugPrint('$ad onAdDismissedFullScreenContent');
         _isShowingAd = false;
+        _activeFullScreenContentCount--;
         ad.dispose();
         _appOpenAd = null;
         loadAppOpenAd();
       },
     );
-    _appOpenAd!.show();
+    _appOpenAd = null;
+    ad.show();
   }
 
   void listenToAppStateChanges() {
+    if (_isListeningToAppState) {
+      return;
+    }
+    _isListeningToAppState = true;
     AppStateEventNotifier.startListening();
-    AppStateEventNotifier.appStateStream
-      .forEach((state) => _onAppStateChanged(state));
+    AppStateEventNotifier.appStateStream.listen(_onAppStateChanged);
   }
 
   void _onAppStateChanged(AppState appState) {
     debugPrint('New AppState state: $appState');
     if (appState == AppState.foreground) {
+      if (_suppressNextForegroundAd) {
+        _suppressNextForegroundAd = false;
+        loadAppOpenAd();
+        return;
+      }
       showAdIfAvailable();
+    } else {
+      _hasBeenBackgrounded = true;
     }
+  }
+
+  void suppressNextAppOpenAd() {
+    _suppressNextForegroundAd = true;
+  }
+
+  Future<bool> shouldShowTriggerAd(
+    SharedPreferences preferences,
+    String key,
+  ) async {
+    final count = preferences.getInt(key) ?? 0;
+    await preferences.setInt(key, count + 1);
+    return count.isOdd;
+  }
+
+  void beginFullScreenContent() {
+    _activeFullScreenContentCount++;
+  }
+
+  void endFullScreenContent() {
+    if (_activeFullScreenContentCount > 0) {
+      _activeFullScreenContentCount--;
+    }
+  }
+
+  void _showFullScreenAd(VoidCallback show) {
+    if (_isShowingAd || _activeFullScreenContentCount > 0) {
+      return;
+    }
+    _isShowingAd = true;
+    _activeFullScreenContentCount++;
+    show();
   }
 }

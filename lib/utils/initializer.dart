@@ -1,13 +1,8 @@
-//import 'package:bacassistant/main.dart';
-
-import 'dart:convert';
-
 import 'package:bacassistant/services/admob/admob_service.dart';
 import 'package:bacassistant/services/curriculum_cache.dart';
 import 'package:bacassistant/firebase_options.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,8 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 late final SharedPreferences prefs;
 late final String appStorage;
 
-//Map<String, dynamic> subjectsMap = {};
-Map<String, dynamic> hisgeoMap = {};
 List fieldList = [];
 List introElements = [];
 List<String> subjectsList = [];
@@ -47,12 +40,6 @@ class Initializer {
     prefs.setInt("adCounter", 0);
   }
 
-  static Future<void> loadFiles() async {
-    rootBundle
-        .loadString('assets/data/historical_events.json')
-        .then((result) => hisgeoMap = json.decode(result));
-  }
-
   static Future<void> run() async {
     // Initialize shared preferences
     prefs = await SharedPreferences.getInstance();
@@ -60,7 +47,6 @@ class Initializer {
     // Check if first run
     isFirstRun();
 
-    loadFiles();
     await CurriculumCache().loadAll();
 
     // Initialize appStorage path

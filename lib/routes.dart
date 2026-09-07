@@ -1,4 +1,3 @@
-import 'package:bacassistant/curriculum.dart';
 import 'package:bacassistant/features/BAC/screens/bac_list_page.dart';
 import 'package:bacassistant/features/grade_calculator/screens/grade_calculator.dart';
 import 'package:bacassistant/features/quiz/views/quiz_subject_page.dart';
@@ -32,7 +31,6 @@ Route<T> drillDown<T>(Widget page) {
 
 const List<Map> pages = [
   {"title": "بكالوريا سابقة", "icon": "graduate.png", "route": BacPage()},
-  {"title": "المقرر الدراسي", "icon": "book.png", "route": CurriculumPage()},
   {"title": "اختبر نفسك", "icon": "idea.png", "route": QuizSubjectPage()},
   {
     "title": "حساب المعدل",

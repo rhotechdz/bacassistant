@@ -96,7 +96,6 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/data/curriculum.json
     - assets/data/historical_events.json
     - assets/images/
     - assets/svg/

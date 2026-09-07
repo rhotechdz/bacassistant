@@ -17,7 +17,6 @@ late final String appStorage;
 
 //Map<String, dynamic> subjectsMap = {};
 Map<String, dynamic> hisgeoMap = {};
-Map<String, dynamic> curriculumMap = {};
 List fieldList = [];
 List introElements = [];
 List<String> subjectsList = [];
@@ -52,9 +51,6 @@ class Initializer {
     rootBundle
         .loadString('assets/data/historical_events.json')
         .then((result) => hisgeoMap = json.decode(result));
-    rootBundle
-        .loadString('assets/data/curriculum.json')
-        .then((result) => curriculumMap = json.decode(result));
   }
 
   static Future<void> run() async {
@@ -64,7 +60,6 @@ class Initializer {
     // Check if first run
     isFirstRun();
 
-    // Keep the legacy curriculum screen available while remote files preload.
     loadFiles();
     await CurriculumCache().loadAll();
 

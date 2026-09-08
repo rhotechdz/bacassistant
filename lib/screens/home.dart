@@ -240,7 +240,7 @@ class _HomePageState extends State<HomePage> {
           tooltip: 'الإعدادات',
           onPressed: _showSettings,
           style: IconButton.styleFrom(
-            backgroundColor: context.colors.surface.withValues(alpha: 0.78),
+            backgroundColor: context.colors.surface.withValues(alpha: 0.96),
             side: BorderSide(color: context.colors.outlineVariant),
             shape: const CircleBorder(),
           ),

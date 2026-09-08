@@ -163,16 +163,22 @@ class _QuizSubjectPageState extends State<QuizSubjectPage> {
           ),
           child: Row(
             children: [
-              Radio<String>(
-                value: entry.subject,
+              const SizedBox(width: 12),
+              Icon(
+                entry.icon,
+                color: selected
+                    ? colorScheme.onPrimaryContainer
+                    : colorScheme.onSurfaceVariant,
               ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       entry.subject,
                       textAlign: TextAlign.right,
+                      textDirection: TextDirection.rtl,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
@@ -180,6 +186,7 @@ class _QuizSubjectPageState extends State<QuizSubjectPage> {
                     Text(
                       entry.subtitle,
                       textAlign: TextAlign.right,
+                      textDirection: TextDirection.rtl,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
@@ -187,12 +194,8 @@ class _QuizSubjectPageState extends State<QuizSubjectPage> {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              Icon(
-                entry.icon,
-                color: selected
-                    ? colorScheme.onPrimaryContainer
-                    : colorScheme.onSurfaceVariant,
+              Radio<String>(
+                value: entry.subject,
               ),
             ],
           ),
@@ -241,11 +244,30 @@ class _QuizSubjectPageState extends State<QuizSubjectPage> {
               child: CheckboxListTile(
                 value: selected,
                 onChanged: (_) => _viewModel.toggleUnit(unit.name),
-                title: Text(unit.name, textAlign: TextAlign.right),
-                subtitle:
-                    Text('$questionCount أسئلة', textAlign: TextAlign.right),
+                title: Text(
+                  unit.name,
+                  textAlign: TextAlign.right,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
                 secondary: CircleAvatar(
-                  child: Text('${unit.order}'),
+                  radius: 18,
+                  backgroundColor: selected
+                      ? colorScheme.primary
+                      : colorScheme.primaryContainer,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Text(
+                      '${unit.order}',
+                      style: TextStyle(
+                        color: selected
+                            ? colorScheme.onPrimary
+                            : colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                 shape: RoundedRectangleBorder(

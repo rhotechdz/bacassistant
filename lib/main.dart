@@ -14,16 +14,19 @@ import 'package:bacassistant/utils/constants.dart';
 import 'package:bacassistant/utils/initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter/services.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.manual,
     overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
   );
   await Initializer.run();
   fieldList = fieldDict.keys.toList();
+  FlutterNativeSplash.remove();
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider(create: (_) => ThemeBloc()),

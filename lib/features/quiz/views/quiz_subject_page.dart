@@ -224,8 +224,7 @@ class _QuizSubjectPageState extends State<QuizSubjectPage> {
         const SizedBox(height: 8),
         ...data.units.map((unit) {
           final selected = _viewModel.selectedUnits.contains(unit.name);
-          final questionCount =
-              data.questions.where((q) => q.unit == unit.name).length;
+          // final questionCount = data.questions.where((q) => q.unit == unit.name).length;
           return Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: Container(

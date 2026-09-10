@@ -170,7 +170,7 @@ class _HomePageState extends State<HomePage> {
       context: context,
       showDragHandle: true,
       builder: (context) => BlocBuilder<ThemeBloc, ThemeState>(
-        builder: (context, themeState) => SafeArea(
+        builder: (context, _) => SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -178,7 +178,7 @@ class _HomePageState extends State<HomePage> {
                 leading: const Icon(Icons.dark_mode_outlined),
                 title: const Text('الوضع الداكن'),
                 trailing: Switch(
-                  value: themeState.themeMode == ThemeMode.dark,
+                  value: context.theme.brightness == Brightness.dark,
                   onChanged: (_) =>
                       context.read<ThemeBloc>().add(ToggleTheme()),
                 ),

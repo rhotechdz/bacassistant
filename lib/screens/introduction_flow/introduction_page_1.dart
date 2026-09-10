@@ -39,20 +39,7 @@ class _IntroductionPageOneState extends State<IntroductionPageOne> {
             Container(
               decoration: BoxDecoration(
                 gradient: RadialGradient(
-                  center: Alignment(0.9, 0.5),
-                  radius: 0.6,
-                  focalRadius: 0.5,
-                  colors: [
-                    colors.tertiary.withAlpha(16),
-                    colors.secondary.withAlpha(10),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment(-0.8, -0.6), // near the top left
+                  center: Alignment(-0.7, -0.6), // near the top left
                   radius: 0.6, // smaller = tighter circle, larger = spread out
                   focalRadius: 0.5,
                   colors: [

@@ -1,6 +1,6 @@
 import 'package:bacassistant/themes/ui_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:bacassistant/utils/system_ui.dart';
 
 final ColorScheme darkColorScheme = ColorScheme.fromSeed(
   seedColor: AppColorsDark.primary,
@@ -18,11 +18,9 @@ final ThemeData darkTheme = ThemeData(
     surfaceTintColor: Colors.transparent,
     elevation: 0,
     scrolledUnderElevation: 0,
-    systemOverlayStyle: SystemUiOverlayStyle(
-      statusBarColor: darkColorScheme.surface,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: darkColorScheme.surface,
-      systemNavigationBarIconBrightness: Brightness.light,
+    systemOverlayStyle: systemUiStyleFor(
+      darkColorScheme,
+      brightness: Brightness.dark,
     ),
   ),
   scaffoldBackgroundColor: darkColorScheme.surface,

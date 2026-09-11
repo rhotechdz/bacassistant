@@ -5,6 +5,7 @@ import 'package:bacassistant/features/BAC/bloc/bac_doc_event.dart';
 import 'package:bacassistant/features/BAC/bloc/bac_doc_state.dart';
 import 'package:bacassistant/features/BAC/models/bac_document.dart';
 import 'package:bacassistant/utils/initializer.dart';
+import 'package:bacassistant/utils/system_ui.dart';
 import 'package:bacassistant/widgets/wrap_app_bar.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
@@ -137,18 +138,7 @@ class _BacOverviewPageState extends State<BacOverviewPage> {
       overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
     );
     SystemChrome.setSystemUIOverlayStyle(
-      theme.appBarTheme.systemOverlayStyle ??
-          SystemUiOverlayStyle(
-            statusBarColor: theme.colorScheme.surface,
-            statusBarIconBrightness: theme.brightness == Brightness.dark
-                ? Brightness.light
-                : Brightness.dark,
-            systemNavigationBarColor: theme.colorScheme.surface,
-            systemNavigationBarIconBrightness:
-                theme.brightness == Brightness.dark
-                    ? Brightness.light
-                    : Brightness.dark,
-          ),
+      systemUiStyleFor(theme.colorScheme, brightness: theme.brightness),
     );
   }
 
@@ -511,19 +501,10 @@ class _BacFullscreenPdfPageState extends State<BacFullscreenPdfPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final theme = Theme.of(context);
-    _restoredSystemUiStyle = theme.appBarTheme.systemOverlayStyle ??
-        SystemUiOverlayStyle(
-          statusBarColor: theme.colorScheme.surface,
-          statusBarIconBrightness: theme.brightness == Brightness.dark
-              ? Brightness.light
-              : Brightness.dark,
-          systemNavigationBarColor: theme.colorScheme.surface,
-          systemNavigationBarIconBrightness: theme.brightness == Brightness.dark
-              ? Brightness.light
-              : Brightness.dark,
-          systemStatusBarContrastEnforced: false,
-          systemNavigationBarContrastEnforced: false,
-        );
+    _restoredSystemUiStyle = systemUiStyleFor(
+      theme.colorScheme,
+      brightness: theme.brightness,
+    );
   }
 
   @override

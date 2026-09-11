@@ -12,6 +12,7 @@ import 'package:bacassistant/themes/dark_theme.dart';
 import 'package:bacassistant/themes/light_theme.dart';
 import 'package:bacassistant/utils/constants.dart';
 import 'package:bacassistant/utils/initializer.dart';
+import 'package:bacassistant/utils/system_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -36,9 +37,14 @@ void main() async {
   ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeBloc, ThemeState>(builder: (context, state) {
@@ -48,10 +54,28 @@ class MyApp extends StatelessWidget {
           themeMode: state.themeMode,
           theme: lightTheme,
           darkTheme: darkTheme,
-          builder: (context, child) => Directionality(
-                textDirection: TextDirection.rtl,
-                child: child!,
+          builder: (context, child) {
+            final theme = Theme.of(context);
+            final systemUiStyle = systemUiStyleFor(
+              theme.colorScheme,
+              brightness: theme.brightness,
+            );
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                applySystemUiStyle(theme);
+              }
+            });
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: systemUiStyle,
+              child: ColoredBox(
+                color: theme.colorScheme.surface,
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: child!,
+                ),
               ),
+            );
+          },
           routes: {
             '/grade_calculator': (context) => GradeCalculatorPage(),
             '/bac_list': (context) => BacPage(),

@@ -2,7 +2,9 @@ import 'package:bacassistant/screens/introduction_flow/introduction_page_1.dart'
 import 'package:bacassistant/screens/introduction_flow/introduction_page_2.dart';
 import 'package:bacassistant/themes/ui_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:animations/animations.dart';
+import 'package:bacassistant/utils/system_ui.dart';
 
 class IntroductionFlow extends StatefulWidget {
   const IntroductionFlow({super.key});
@@ -51,43 +53,50 @@ class _IntroductionFlowState extends State<IntroductionFlow> {
         ? AppColorsDark.bgDark
         : Theme.of(context).colorScheme.surface;
 
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, result) {
-          if (!didPop) {
-            _handleBack();
-          }
-        },
-        child: Scaffold(
-          backgroundColor: backgroundColor,
-          body: ColoredBox(
-            color: backgroundColor,
-            child: PageTransitionSwitcher(
-                duration: const Duration(milliseconds: 420),
-                reverse: _showFirst,
-                transitionBuilder: (Widget child, Animation<double> primary,
-                    Animation<double> secondary) {
-                  return SharedAxisTransition(
-                    animation: primary,
-                    secondaryAnimation: secondary,
-                    transitionType: SharedAxisTransitionType.horizontal,
-                    fillColor: backgroundColor,
-                    child: child,
-                  );
-                },
-                child: _showFirst
-                    ? const IntroductionPageOne()
-                    : const IntroductionPageTwo()),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: systemUiStyleFor(
+        Theme.of(context).colorScheme,
+        brightness: Theme.of(context).brightness,
+        barColor: backgroundColor,
+      ),
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop) {
+              _handleBack();
+            }
+          },
+          child: Scaffold(
+            backgroundColor: backgroundColor,
+            body: ColoredBox(
+              color: backgroundColor,
+              child: PageTransitionSwitcher(
+                  duration: const Duration(milliseconds: 420),
+                  reverse: _showFirst,
+                  transitionBuilder: (Widget child, Animation<double> primary,
+                      Animation<double> secondary) {
+                    return SharedAxisTransition(
+                      animation: primary,
+                      secondaryAnimation: secondary,
+                      transitionType: SharedAxisTransitionType.horizontal,
+                      fillColor: backgroundColor,
+                      child: child,
+                    );
+                  },
+                  child: _showFirst
+                      ? const IntroductionPageOne()
+                      : const IntroductionPageTwo()),
+            ),
+            floatingActionButton: _showFirst
+                ? FloatingActionButton.extended(
+                    onPressed: _toggle,
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    label: const Text('التالي'),
+                  )
+                : null,
           ),
-          floatingActionButton: _showFirst
-              ? FloatingActionButton.extended(
-                  onPressed: _toggle,
-                  icon: const Icon(Icons.arrow_back_rounded),
-                  label: const Text('التالي'),
-                )
-              : null,
         ),
       ),
     );

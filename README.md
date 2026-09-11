@@ -1,16 +1,28 @@
-# bacassistant
+# BAC Assistant
 
-A new Flutter project.
+BAC Assistant is a study companion for students preparing for the Baccalaureate exam. It brings study resources, quizzes, and grade tools together in one app.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- Browse BAC curriculum documents by year, field, and subject.
+- Download, read, and print study documents.
+- Practice with quizzes in mathematics, physics, history, and geography.
+- Review quiz results and answers.
+- Calculate grades by subject.
+- Sign in with Google and save app preferences.
+- Use light and dark themes with Arabic-friendly interface support.
 
-A few resources to get you started if this is your first Flutter project:
+## Getting started
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+This project is built with Flutter. Install the [Flutter SDK](https://docs.flutter.dev/get-started/install), then run:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter pub get
+flutter run
+```
+
+## Privacy
+
+Read the [Privacy Policy](PRIVACY_POLICY.md) for information about data use, third-party services, and deletion requests.
+
+For privacy questions or support, contact [dzbacassistant@gmail.com](mailto:dzbacassistant@gmail.com).

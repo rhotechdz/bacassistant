@@ -381,7 +381,7 @@ class _CountdownCardState extends State<CountdownCard> {
     }
 
     final response = await Dio().get(
-      'https://bac-assistant.idrismore18.workers.dev/dev/timestamp',
+      'https://bac-assistant.rhotech.workers.dev/dev/timestamp',
     );
     final data = response.data;
     final normalized = data is Map<String, dynamic>

@@ -3,6 +3,7 @@ import 'package:bacassistant/services/curriculum_cache.dart';
 import 'package:bacassistant/firebase_options.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,8 +58,10 @@ class Initializer {
     );
 
     // Initialize Firebase App Check
-    await FirebaseAppCheck.instance
-        .activate(androidProvider: AndroidProvider.debug);
+    await FirebaseAppCheck.instance.activate(
+      androidProvider:
+          kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+    );
 
     // Load ad service
     await MobileAds.instance.initialize();
